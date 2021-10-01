@@ -32,3 +32,12 @@ This is a better alternative to the chocolatey refreshenv for cmd (and works for
    breaks build because linker cannot open system profile's Temp folder.*
 
 https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
+
+## for cmd
+this script uses vbscript so it works in all windows versions **xp+**
+
+call it from cmd with: `call refrenv.bat`
+
+## for cygwin/bash:
+call it from bash with: `source refrenv.sh`
+
