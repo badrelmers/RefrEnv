@@ -82,6 +82,7 @@ DESCRIPTION
 main(){
     echo 'RefrEnv - Refresh the Environment'
     local i
+    local runme=yes
     
     if [[ "$#" -gt 0 ]] ; then
         for i in "$@" ; do
@@ -96,6 +97,7 @@ main(){
                 ;;
                 --help)
                     RefrEnv_help
+                    local runme=no
                 ;;
                 *)
                     # unknown option
@@ -104,8 +106,15 @@ main(){
                 ;;
             esac
         done
-    fi    
+    fi
     
+    [[ "$runme" = "yes" ]] && run_RefrEnv
+    
+}
+
+####################################################################
+
+run_RefrEnv(){
     
     local Temp_Dir=${TEMP}/RefrEnvBash
     # rm ${Temp_Dir}/newEnv.sh
@@ -127,9 +136,8 @@ main(){
     else
         rm -rf ${Temp_Dir}
     fi
+    
 }
-
-####################################################################
 
 getNewlyAddedVars(){
     # get the newly added variables from registry which are not defined right now in bash
