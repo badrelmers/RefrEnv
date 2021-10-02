@@ -31,7 +31,7 @@ DESCRIPTION
                               
     --help         Print this help.
 
-    you can also put this script in windows\systems32 or another place in your $PATH then call it from an interactive console by writing refrenv.sh
+    you can also put this script in windows\systems32 or another place in your $PATH then call it from an interactive console by writing source refrenv.sh
 
     *critical variables: are variables which belong to bash or windows and should not be refreshed normally like:
     - windows vars:
