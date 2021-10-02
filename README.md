@@ -24,7 +24,7 @@ This is a better alternative to the chocolatey refreshenv for cmd (and works for
    than overwriting the old path, otherwise it will delete any newly
    added path by the parent script.
 
- - This script solve this problem : refreshenv *modifies env variables TEMP and TMP replacing
+ - This script solve this problem described in a comment [here][1] by @Gene Mayevsky: refreshenv *modifies env variables TEMP and TMP replacing
    them with values stored in HKCU\Environment. In my case I run the
    script to update env variables modified by Jenkins job on a slave
    that's running under SYSTEM account, so TEMP and TMP get substituted
@@ -33,11 +33,26 @@ This is a better alternative to the chocolatey refreshenv for cmd (and works for
 
 https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
 
-## for cmd
-this script uses vbscript so it works in all windows versions **xp+**
+## For cmd
+This script uses vbscript so it works in all windows versions **xp+**
 
-call it from cmd with: `call refrenv.bat`
+Call it from cmd with: 
+```batch
+call refrenv.bat
+```
 
-## for cygwin/bash:
-call it from bash with: `source refrenv.sh`
+## For cygwin/bash:
+Call it from bash with: 
+```bash
+source refrenv.sh
+```
+or 
+```bash
+source refrenv.sh --strict
+```
+For more info see: 
+```bash
+refrenv.sh --help
+``` 
 
+  [1]: https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
