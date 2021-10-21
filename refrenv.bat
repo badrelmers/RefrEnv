@@ -10,17 +10,22 @@ REM https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-env
 
 REM ___USAGE_____________________________________________________________
 REM usage: 
-REM call refrenv.bat                full refresh. refresh all non critical variables*, and refresh the PATH
+REM        call refrenv.bat        full refresh. refresh all non critical variables*, and refresh the PATH
+
+REM debug:
+REM        to debug what this script do create this variable in your parent script like that
+REM        set debugme=yes
+REM        then the folder containing the files used to set the variables will be open. Then see
+REM        _NewEnv.cmd this is the file which run inside your script to setup the new variables, you
+REM        can also revise the intermediate files _NewEnv.cmd_temp_.cmd and _NewEnv.cmd_temp2_.cmd 
+REM        (those two contains all the variables before removing the duplicates and the unwanted variables)
+
 
 REM you can also put this script in windows\systems32 or another place in your %PATH% then call it from an interactive console by writing refrenv
 
 REM *critical variables: are variables which belong to cmd/windows and should not be refreshed normally like:
 REM - windows vars:
 REM ALLUSERSPROFILE APPDATA CommonProgramFiles CommonProgramFiles(x86) CommonProgramW6432 COMPUTERNAME ComSpec HOMEDRIVE HOMEPATH LOCALAPPDATA LOGONSERVER NUMBER_OF_PROCESSORS OS PATHEXT PROCESSOR_ARCHITECTURE PROCESSOR_ARCHITEW6432 PROCESSOR_IDENTIFIER PROCESSOR_LEVEL PROCESSOR_REVISION ProgramData ProgramFiles ProgramFiles(x86) ProgramW6432 PUBLIC SystemDrive SystemRoot TEMP TMP USERDOMAIN USERDOMAIN_ROAMINGPROFILE USERNAME USERPROFILE windir SESSIONNAME
-
-REM ___DEBUG_____________________________________________________________
-REM to debug what this script do uncomment this variable (debugme), then the folder containing the files used to set the variables will be open ;then see _NewEnv.cmd this is the file which run inside your script to setup the new variables, you can also revise the intermediate files _NewEnv.cmd_temp_.cmd and _NewEnv.cmd_temp2_.cmd (those two contains all the variables before removing the duplicates and the unwanted variables)
-REM set debugme=yes
 
 
 REM ___INFO_____________________________________________________________
@@ -56,7 +61,7 @@ REM windows recreate the path using three places at less:
 REM the User namespace:    HKCU\Environment
 REM the System namespace:  HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment
 REM the Session namespace: HKCU\Volatile Environment
-REM but the original chocolatey script did not add the volatil path. This script will merge all the three and remove any duplicates. this is what windows do by default too
+REM but the original chocolatey script did not add the volatile path. This script will merge all the three and remove any duplicates. this is what windows do by default too
 
 REM there is this too which cmd seems to read when first running, but it contains only TEMP and TMP,so i will not use it
 REM HKEY_USERS\.DEFAULT\Environment
@@ -67,7 +72,7 @@ REM to test this script with extreme cases do
     REM :: Set a bad variable
     REM add a var in reg HKCU\Environment as the following, and see that echo is not executed.  if you use refreshenv of chocolatey you will see that echo is executed which is so bad!
     REM so save this in reg:
-    REM all 32 charachters: & % ' ( ) ~ + @ # $ { } [ ] ; , ` ! ^ | > < \ / " : ? * = . - _ & echo baaaad
+    REM all 32 characters: & % ' ( ) ~ + @ # $ { } [ ] ; , ` ! ^ | > < \ / " : ? * = . - _ & echo baaaad
     REM and this:
     REM (^.*)(Form Product=")([^"]*") FormType="[^"]*" FormID="([0-9][0-9]*)".*$
     REM and use set to print those variables and see if they are saved without change ; refreshenv fail dramatically with those variables
@@ -86,6 +91,12 @@ REM :: The only restriction is the batch code cannot contain - - > (without spac
 REM :: The only restriction is the VBS code cannot contain </script>.
 REM :: The only risk is the undocumented use of "%~f0?.wsf" as the script to load. Somehow the parser properly finds and loads the running .BAT script "%~f0", and the ?.wsf suffix mysteriously instructs CSCRIPT to interpret the script as WSF. Hopefully MicroSoft will never disable that "feature".
 REM :: https://stackoverflow.com/questions/9074476/is-it-possible-to-embed-and-execute-vbscript-within-a-batch-file-without-using-a
+
+if "%debugme%"=="yes" (
+    echo RefrEnv - Refresh the Environment for CMD - ^(Debug enabled^)
+) else (
+    echo RefrEnv - Refresh the Environment for CMD
+)
 
 set "TEMPDir=%TEMP%\refrenv"
 IF NOT EXIST "%TEMPDir%" mkdir "%TEMPDir%"
@@ -108,9 +119,9 @@ cscript //nologo "%~f0?.wsf" "%outputfile%" %DelayedExpansionState%
 
 
 REM ::set the new variables generated with vbscript script above
-REM for this to work always it is necesary to use DisableDelayedExpansion or escape ! and ^ when using EnableDelayedExpansion, but this script already solve this, so no worry about that now, thanks to God
+REM for this to work always it is necessary to use DisableDelayedExpansion or escape ! and ^ when using EnableDelayedExpansion, but this script already solve this, so no worry about that now, thanks to God
 REM test it with some bad var like:
-REM all 32 charachters: ; & % ' ( ) ~ + @ # $ { } [ ] , ` ! ^ | > < \ / " : ? * = . - _ & echo baaaad
+REM all 32 characters: ; & % ' ( ) ~ + @ # $ { } [ ] , ` ! ^ | > < \ / " : ? * = . - _ & echo baaaad
 REM For /f delims^=^ eol^= %%a in (%outputfile%) do %%a
 REM for /f "delims== tokens=1,2" %%G in (%outputfile%) do set "%%G=%%H"
 For /f delims^=^ eol^= %%a in (%outputfile%) do set %%a
@@ -164,8 +175,6 @@ Const ForWriting = 2
 Const ForAppending = 8 
 
 Set WshShell = WScript.CreateObject("WScript.Shell")
-REM filename = WshShell.ExpandEnvironmentStrings("%TEMP%\resetvars.bat")
-REM filename = "resetvars.bat"
 filename=WScript.Arguments.Item(0)
 DelayedExpansionState=WScript.Arguments.Item(1)
 
@@ -176,21 +185,18 @@ Set tmpF = fso.CreateTextFile(TMPfilename, TRUE)
 
 set oEnvS=WshShell.Environment("System")
 for each sitem in oEnvS
-    REM tmpF.WriteLine("SET " & sitem)
     tmpF.WriteLine(sitem)
 next
 SystemPath = oEnvS("PATH")
 
 set oEnvU=WshShell.Environment("User")
 for each sitem in oEnvU
-    REM tmpF.WriteLine("SET " & sitem)
     tmpF.WriteLine(sitem)
 next
 UserPath = oEnvU("PATH")
 
 set oEnvV=WshShell.Environment("Volatile")
 for each sitem in oEnvV
-    REM tmpF.WriteLine("SET " & sitem)
     tmpF.WriteLine(sitem)
 next
 VolatilePath = oEnvV("PATH")
@@ -198,15 +204,14 @@ VolatilePath = oEnvV("PATH")
 set oEnvP=WshShell.Environment("Process")
 REM i will not save the process env but only its path, because it have strange variables like  =::=::\ and  =F:=.... which seems to be added by vbscript
 REM for each sitem in oEnvP
-    REM tmpF.WriteLine("SET " & sitem)
+    REM tmpF.WriteLine(sitem)
 REM next
-    REM aki anado el path actual asi no se resetea el path ya ke kizas haya anadido algo al path con el script ke llamara este script, si kiero resetear el path entonces comment this
+REM here we add the actual session path, so we do not reset the original path, because maybe the parent script added some folders to the path, If we need to reset the path then comment the following line
 ProcessPath = oEnvP("PATH")
 
-
+REM merge System, User, Volatile, and process PATHs
 NewPath = SystemPath & ";" & UserPath & ";" & VolatilePath & ";" & ProcessPath
-REM NewPath = SystemPath & ";" & UserPath & ";" & VolatilePath
-REM NewPath = SystemPath & ";" & UserPath
+
 
 REM ________________________________________________________________
 REM :: remove duplicates from path
@@ -222,7 +227,7 @@ REM ' https://www.rosettacode.org/wiki/Remove_duplicate_elements#VBScript
 Function remove_duplicates(list)
 	arr = Split(list,";")
 	Set dict = CreateObject("Scripting.Dictionary")
-    REM ' force dictionary comapre to be case-insensitive , uncomment to force case-sensitive
+    REM ' force dictionary compare to be case-insensitive , uncomment to force case-sensitive
     dict.CompareMode = 1
 
 	For i = 0 To UBound(arr)
@@ -236,47 +241,50 @@ Function remove_duplicates(list)
 	remove_duplicates = Left(tmp,Len(tmp)-1)
 End Function
  
-REM WScript.Echo remove_duplicates("b;B;g;a;a;b;b;c;d;e;d;f;f;f;g;h")
-
 REM expand variables
 NewPath = WshShell.ExpandEnvironmentStrings(NewPath)
 REM remove duplicates
 NewPath=remove_duplicates(NewPath)
 
+REM remove_duplicates() will add a ; to the end so lets remove it if the last letter is ;
+If Right(NewPath, 1) = ";" Then 
+    NewPath = Left(NewPath, Len(NewPath) - 1) 
+End If
+  
 tmpF.WriteLine("PATH=" & NewPath)
 tmpF.Close
 
 REM ________________________________________________________________
 REM :: exclude setting variables which may be dangerous to change
 
-REM when i run a script from task scheduler using SYSTEM user the following variables are the differences between the scheduler env and a normal cmd script, so i will not override those variables
-REM APPDATA=D:\Users\LLED2\AppData\Roaming
-REM APPDATA=D:\Windows\system32\config\systemprofile\AppData\Roaming
+    REM when i run a script from task scheduler using SYSTEM user the following variables are the differences between the scheduler env and a normal cmd script, so i will not override those variables
+    REM APPDATA=D:\Users\LLED2\AppData\Roaming
+    REM APPDATA=D:\Windows\system32\config\systemprofile\AppData\Roaming
 
-REM LOCALAPPDATA=D:\Users\LLED2\AppData\Local
-REM LOCALAPPDATA=D:\Windows\system32\config\systemprofile\AppData\Local
+    REM LOCALAPPDATA=D:\Users\LLED2\AppData\Local
+    REM LOCALAPPDATA=D:\Windows\system32\config\systemprofile\AppData\Local
 
-REM TEMP=D:\Users\LLED2\AppData\Local\Temp
-REM TEMP=D:\Windows\TEMP
+    REM TEMP=D:\Users\LLED2\AppData\Local\Temp
+    REM TEMP=D:\Windows\TEMP
 
-REM TMP=D:\Users\LLED2\AppData\Local\Temp
-REM TMP=D:\Windows\TEMP
+    REM TMP=D:\Users\LLED2\AppData\Local\Temp
+    REM TMP=D:\Windows\TEMP
 
-REM USERDOMAIN=LLED2-PC
-REM USERDOMAIN=WORKGROUP
+    REM USERDOMAIN=LLED2-PC
+    REM USERDOMAIN=WORKGROUP
 
-REM USERNAME=LLED2
-REM USERNAME=LLED2-PC$
+    REM USERNAME=LLED2
+    REM USERNAME=LLED2-PC$
 
-REM USERPROFILE=D:\Users\LLED2
-REM USERPROFILE=D:\Windows\system32\config\systemprofile
+    REM USERPROFILE=D:\Users\LLED2
+    REM USERPROFILE=D:\Windows\system32\config\systemprofile
 
-REM i know this thanks to this comment
-REM The solution is good but it modifies env variables TEMP and TMP replacing them with values stored in HKCU\Environment. In my case I run the script to update env variables modified by Jenkins job on a slave that's running under SYSTEM account, so TEMP and TMP get substituted by %USERPROFILE%\AppData\Local\Temp instead of C:\Windows\Temp. This breaks build because linker cannot open system profile's Temp folder. – Gene Mayevsky Sep 26 '19 at 20:51
+    REM i know this thanks to this comment
+    REM The solution is good but it modifies env variables TEMP and TMP replacing them with values stored in HKCU\Environment. In my case I run the script to update env variables modified by Jenkins job on a slave that's running under SYSTEM account, so TEMP and TMP get substituted by %USERPROFILE%\AppData\Local\Temp instead of C:\Windows\Temp. This breaks build because linker cannot open system profile's Temp folder. – Gene Mayevsky Sep 26 '19 at 20:51
 
 
-REM ' Delete Lines of a Text File Beginning with a Specified String
-REM those are the variables which sould not be changed by this script 
+REM Delete Lines of a Text File Beginning with a Specified String
+REM those are the variables which should not be changed by this script 
 arrBlackList = Array("ALLUSERSPROFILE=", "APPDATA=", "CommonProgramFiles=", "CommonProgramFiles(x86)=", "CommonProgramW6432=", "COMPUTERNAME=", "ComSpec=", "HOMEDRIVE=", "HOMEPATH=", "LOCALAPPDATA=", "LOGONSERVER=", "NUMBER_OF_PROCESSORS=", "OS=", "PATHEXT=", "PROCESSOR_ARCHITECTURE=", "PROCESSOR_ARCHITEW6432=", "PROCESSOR_IDENTIFIER=", "PROCESSOR_LEVEL=", "PROCESSOR_REVISION=", "ProgramData=", "ProgramFiles=", "ProgramFiles(x86)=", "ProgramW6432=", "PUBLIC=", "SystemDrive=", "SystemRoot=", "TEMP=", "TMP=", "USERDOMAIN=", "USERDOMAIN_ROAMINGPROFILE=", "USERNAME=", "USERPROFILE=", "windir=", "SESSIONNAME=")
 
 Set objFS = CreateObject("Scripting.FileSystemObject")
@@ -297,14 +305,13 @@ For Each strLine In arrLines
         End If
     Next
     If bypassThisLine=False Then
-        REM wscript.echo "___" & strLine & "+++" & BlackWord
         objTS.WriteLine strLine
     End If
 Next
 
 REM ____________________________________________________________
 REM :: expand variables because registry save some variables as unexpanded %....%
-REM :: escape ! and ^ for cmd EnableDelayedExpansion mode
+REM :: and escape ! and ^ for cmd EnableDelayedExpansion mode
 
 set f=fso.OpenTextFile(TMPfilename2,ForReading)
 REM Write file:  ForAppending = 8 ForReading = 1 ForWriting = 2 , True=create file if not exist
