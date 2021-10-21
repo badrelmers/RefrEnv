@@ -1,5 +1,5 @@
 # RefrEnv - *Refr*esh the *Env*ironment
-Reload environment variables inside cmd/bash every time you want environment changes to propagate, so you do not need to restart cmd/bash after setting a new variable with setx or after installing a new app which adds new variables.
+Reload environment variables inside cmd/bash/powershell every time you want environment changes to propagate, so you do not need to restart them after setting a new variable with setx or after installing a new app which adds new variables.
 
 This is a better alternative to the chocolatey refreshenv for cmd (and works for bash (cygwin) too), which solves a lot of problems like:
  - The Chocolatey **refreshenv** is so **bad** if the variable have some
@@ -41,18 +41,37 @@ Call it from cmd with:
 call refrenv.bat
 ```
 
-## For cygwin/bash:
+## For Cygwin/bash:
 Call it from bash with: 
 ```bash
 source refrenv.sh
 ```
-or 
-```bash
-source refrenv.sh --strict
+### Help
 ```
-For more info see: 
-```bash
-refrenv.sh --help
-``` 
+    By default with no arguments, this script will do a full 
+    refresh (refresh all non critical variables*, and refresh the PATH).
+
+    use can use the following variables to change some behaviours:
+    RefrEnv_StrictRefresh=yes
+                Strict mode (secure refresh) . refresh only a variable
+                if it is not already defined in the actual bash session, 
+                and refresh the PATH.
+
+    RefrEnv_debug=yes
+                Debug what this script do. The folder containing the 
+                files used to set the variables will be open, then see 
+                _NewEnv.sh this is the file which run inside your script
+                to setup the new variables, you can also revise the 
+                intermediate .txt files.
+                              
+    RefrEnv_help=yes
+                Print the help.
+```
+
+## For Powershell
+Call it from Powershell with:
+```powershell
+. .\refrenv.ps1
+```
 
   [1]: https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
