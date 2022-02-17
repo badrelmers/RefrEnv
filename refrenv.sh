@@ -2,6 +2,7 @@
 
 # author: Badr Elmers 2021
 # description: refrenv = refresh environment. for bash
+# version: 1.1
 # https://github.com/badrelmers/RefrEnv
 # https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
 
@@ -27,20 +28,22 @@ DESCRIPTION
     refresh (refresh all non critical variables*, and refresh the PATH).
 
     use can use the following variables to change some behaviours:
-    RefrEnv_StrictRefresh=yes
-                Strict mode (secure refresh) . refresh only a variable
-                if it is not already defined in the actual bash session, 
-                and refresh the PATH.
+    
+    RefrEnv_StrictRefresh=yes   Strict mode (secure refresh). this prevent refreshing a
+                                variable if it is already defined in the actual bash session. 
+                                The PATH will be refreshed.
+                                
+    RefrEnv_ResetPath=yes       Reset the actual PATH inside bash, then refresh it with the new PATH.
+                                this will delete any PATH added by the script who called RefrEnv. 
+                                it is equivalent to running a new bash session.
 
-    RefrEnv_debug=yes
-                Debug what this script do. The folder containing the 
-                files used to set the variables will be open, then see 
-                _NewEnv.sh this is the file which run inside your script
-                to setup the new variables, you can also revise the 
-                intermediate .txt files.
+    RefrEnv_debug=yes           Debug what this script do. The folder containing the 
+                                files used to set the variables will be open, then see 
+                                _NewEnv.sh this is the file which run inside your script
+                                to setup the new variables, you can also revise the 
+                                intermediate .txt files.
                               
-    RefrEnv_help=yes
-                Print the help.
+    RefrEnv_help=yes            Print the help.
 
     you can also put this script in windows\systems32 or another place in your $PATH then call it from an interactive console by writing: source refrenv.sh
 
@@ -238,14 +241,36 @@ getNewPATHS(){
     local AllExpandedPaths
     AllExpandedPaths=$(cat "${RefrEnv_Temp_Dir}/path_expanded.txt")
      
-    # append the new paths to the old path; its better than overwriting the old path; otherwise i will delete any newly added path by the script who called this script
+    
     local IFSorg=$IFS
     IFS=':'
-    local i convertedPATHs
-    for i in ${PATH} ; do 
-        convertedPATHs+="$i"$'\n'
-    done
-
+    local i convertedPATHs DefaultPath
+    
+    if [[ ${RefrEnv_ResetPath:-} != yes ]] ; then
+        # append the new paths to the old path; its better than overwriting the old path; otherwise i will delete any newly added path by the script who called this script
+        for i in ${PATH} ; do 
+            convertedPATHs+="$i"$'\n'
+        done
+    fi
+    
+    if [[ ${RefrEnv_ResetPath:-} == yes ]] ; then
+        # reset the path
+        # lets open a new bash session then capture the new path then add that path to our path, otherwise the bash default path will also be reseted so no command will work after that
+        # check if we are in a login shell
+        if shopt -q login_shell ; then
+            # we are in a login shell
+            # env -i clears HOME, so even if you run bash -l on the inside, it won't read your .bash_profile etc https://unix.stackexchange.com/questions/48994/how-to-run-a-program-in-a-clean-environment-in-bash/451389#451389
+            # env -i adds a dot (.) to the path!, this is bad so lets remove that dot with sed
+            DefaultPath=$(env -i HOME="$HOME" /bin/bash -lc 'echo $PATH' | sed -e 's/:\.:/:/' -e 's/:\.$//')
+        else
+            DefaultPath=$(env -i HOME="$HOME" /bin/bash -c 'echo $PATH' | sed -e 's/:\.:/:/' -e 's/:\.$//')
+        fi
+        
+        for i in ${DefaultPath} ; do 
+            convertedPATHs+="$i"$'\n'
+        done
+    fi
+    
     IFS=';'
     local i convertedPATHs
     for i in ${AllExpandedPaths} ; do 
@@ -253,7 +278,7 @@ getNewPATHS(){
         convertedPATHs+=$(cygpath "$i")$'\n'
     done
     
-    # remove the last slash / so i catch duplicates which differ in the last slash only .../:.../
+    # remove the last slash / so i catch duplicates which differ in the last slash only like: abc:abc/
     convertedPATHs=$(printf '%s' "$convertedPATHs" | sed 's/\/$//g')
 
     # remove duplicates without sorting
@@ -261,10 +286,10 @@ getNewPATHS(){
     local uniqpath
     uniqpath=$(printf '%s' "$convertedPATHs" | nl | sort --ignore-case -u -k2 | sort -n | cut -f2-)
     
-    # convert it to cygwin PATH format ...:...:...ect
+    # convert it to cygwin PATH format ...:...:...etc
     local finalpath
     finalpath=$(printf '%s' "$uniqpath" | tr '\n' ':')
-    # if the variable have ' bad things may happen so lets escape it with '\''
+    # if the variable have single quote ' , bad things may happen so lets escape it with '\''
     finalpath=$(printf '%s' "$finalpath" | sed "s/'/'\\\\''/g")
 
     finalpath="export PATH='${finalpath}'"
