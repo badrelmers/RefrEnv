@@ -262,7 +262,7 @@ getNewPATHS(){
         # check if we are in a login shell
         if shopt -q login_shell ; then
             # we are in a login shell
-            # env -i clears HOME, so even if you run bash -l on the inside, it won't read your .bash_profile etc https://unix.stackexchange.com/questions/48994/how-to-run-a-program-in-a-clean-environment-in-bash/451389#451389
+            # env -i clears HOME, so even if you run bash -l on the inside, it won't read your .bash_profile etc .so solve it we use HOME="$HOME" https://unix.stackexchange.com/questions/48994/how-to-run-a-program-in-a-clean-environment-in-bash/451389#451389
             # env -i adds a dot (.) to the path!, this is bad so lets remove that dot with sed
             DefaultPath=$(env -i HOME="$HOME" /bin/bash -lc 'echo $PATH' | sed -e 's/:\.:/:/' -e 's/:\.$//')
         else
