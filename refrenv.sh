@@ -99,6 +99,9 @@ refrenv_main(){
     if [[ ${RefrEnv_StrictRefresh:-} == yes ]] ; then
         local strict_txt=' - (Strict refresh)'
     fi
+    if [[ ${RefrEnv_ResetPath:-} == yes ]] ; then
+        local ResetPath_txt=' - (Reset Path)'
+    fi
     if [[ ${RefrEnv_debug:-} == yes ]] ; then
         local debug_txt=' - (Debug enabled)'
     fi
@@ -109,7 +112,7 @@ refrenv_main(){
 
     
     if [[ "${runme:-}" = "yes" ]] ; then
-        echo "RefrEnv - Refresh the Environment for Bash${strict_txt:-}${debug_txt:-}"
+        echo "RefrEnv - Refresh the Environment for Bash${strict_txt:-}${ResetPath_txt:-}${debug_txt:-}"
         
         rm -rf "${RefrEnv_Temp_Dir}" || true
         mkdir -p "${RefrEnv_Temp_Dir}"
