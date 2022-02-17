@@ -21,7 +21,7 @@ NAME
     RefrEnv - Refresh the Environment for Bash
 
 SYNOPSIS
-    source refrenv.sh [OPTION]...
+    source refrenv.sh
     
 DESCRIPTION
     By default with no arguments, this script will do a full 
