@@ -1,8 +1,8 @@
 # RefrEnv - *Refr*esh the *Env*ironment
 Reload environment variables inside cmd/bash/powershell every time you want environment changes to propagate, so you do not need to restart them after setting a new variable with setx or after installing a new app which adds new variables.
 
-This is a better alternative to the chocolatey refreshenv for cmd (and works for bash (cygwin) too), which solves a lot of problems like:
- - The Chocolatey **refreshenv** is so **bad** if the variable have some
+This is a better alternative to the chocolatey refreshenv for cmd (and works for bash too (cygwin)), which solves several problems in the chocolatey refreshenv, like:
+ - The Chocolatey **refreshenv** act **bad** if the variable have some
    cmd meta-characters, see this test:
    
    add this to the path in HKCU\Environment: `test & echo baaaaaaaaaad`,
@@ -31,8 +31,9 @@ This is a better alternative to the chocolatey refreshenv for cmd (and works for
    by %USERPROFILE%\AppData\Local\Temp instead of C:\Windows\Temp. This
    breaks build because linker cannot open system profile's Temp folder.*
 
-https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
+[more info][2]
 
+# Usage:
 ## For cmd
 This script uses vbscript so it works in all windows versions **xp+**
 
@@ -41,37 +42,53 @@ Call it from cmd with:
 call refrenv.bat
 ```
 
-## For Cygwin/bash:
-Call it from bash with: 
-```bash
-source refrenv.sh
-```
-### Help
-```
-    By default with no arguments, this script will do a full 
-    refresh (refresh all non critical variables*, and refresh the PATH).
-
-    use can use the following variables to change some behaviours:
-    RefrEnv_StrictRefresh=yes
-                Strict mode (secure refresh) . refresh only a variable
-                if it is not already defined in the actual bash session, 
-                and refresh the PATH.
-
-    RefrEnv_debug=yes
-                Debug what this script do. The folder containing the 
-                files used to set the variables will be open, then see 
-                _NewEnv.sh this is the file which run inside your script
-                to setup the new variables, you can also revise the 
-                intermediate .txt files.
-                              
-    RefrEnv_help=yes
-                Print the help.
-```
-
 ## For Powershell
 Call it from Powershell with:
 ```powershell
 . .\refrenv.ps1
 ```
 
+## For Cygwin/bash:
+Call it from bash with: 
+```bash
+source refrenv.sh
+```
+#### Opciones for RefrEnv in bash 
+```
+SYNOPSIS
+    source refrenv.sh
+    
+DESCRIPTION
+    By default with no arguments, this script will do a full 
+    refresh (refresh all non critical variables*, and refresh the PATH).
+
+    use can use the following variables to change some behaviours:
+    
+    RefrEnv_StrictRefresh=yes   Strict mode (secure refresh). this prevent refreshing a
+                                variable if it is already defined in the actual bash session. 
+                                The PATH will be refreshed.
+                                
+    RefrEnv_ResetPath=yes       Reset the actual PATH inside bash, then refresh it with the new PATH.
+                                this will delete any PATH added by the script who called RefrEnv. 
+                                it is equivalent to running a new bash session.
+
+    RefrEnv_debug=yes           Debug what this script do. The folder containing the 
+                                files used to set the variables will be open, then see 
+                                _NewEnv.sh this is the file which run inside your script
+                                to setup the new variables, you can also revise the 
+                                intermediate .txt files.
+                              
+    RefrEnv_help=yes            Print the help.
+
+    *critical variables: are variables which belong to bash or windows and should not be refreshed normally like:
+    - windows vars:
+    ALLUSERSPROFILE APPDATA CommonProgramFiles ...
+    - bash vars:
+    BASH BASHOPTS BASHPID BASH_ALIASES BASH_ARGC ...
+```
+ 
+
+
   [1]: https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
+  [2]: https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
+
