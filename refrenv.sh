@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # author: Badr Elmers 2021
-# description: refrenv = refresh environment. for bash
+# description: RefrEnv = refresh environment. for bash
 # version: 1.1
 # https://github.com/badrelmers/RefrEnv
 # https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
@@ -238,8 +238,9 @@ getNewPATHS(){
     HKCUV=$(regtool get '/HKCU/Volatile Environment/path' 2>/dev/null) || true
 
     local allPATHs="${HKLM};${HKCU};${HKCUV}"
-        
-    printf '%s' "$allPATHs" > "${RefrEnv_Temp_Dir}/path_need_to_expand.txt"
+    
+    # after installing chocolatey it adds itself to the path like that: (D:\ProgramData\chocolatey\bin;) , the last ; should not have been added by chocolatey, this is an error by chocolatey , and it cause allPATHs to have double ;; , and this will make cygpath print (cygpath: can't convert empty path) . to solve it lets replace the double ;; with one ; this is safe. this solve https://github.com/badrelmers/RefrEnv/issues/1
+    printf '%s' "$allPATHs" | sed 's/;;/;/g' > "${RefrEnv_Temp_Dir}/path_need_to_expand.txt"
     ExpandEnvironmentStrings "$(cygpath -w "${RefrEnv_Temp_Dir}/path_need_to_expand.txt")" "$(cygpath -w "${RefrEnv_Temp_Dir}/path_expanded.txt")"
     local AllExpandedPaths
     AllExpandedPaths=$(cat "${RefrEnv_Temp_Dir}/path_expanded.txt")
@@ -262,7 +263,7 @@ getNewPATHS(){
         # check if we are in a login shell
         if shopt -q login_shell ; then
             # we are in a login shell
-            # env -i clears HOME, so even if you run bash -l on the inside, it won't read your .bash_profile etc .so solve it we use HOME="$HOME" https://unix.stackexchange.com/questions/48994/how-to-run-a-program-in-a-clean-environment-in-bash/451389#451389
+            # env -i clears HOME, so even if you run bash -l on the inside, it won't read your .bash_profile etc .so to solve it we use HOME="$HOME" https://unix.stackexchange.com/questions/48994/how-to-run-a-program-in-a-clean-environment-in-bash/451389#451389
             # env -i adds a dot (.) to the path!, this is bad so lets remove that dot with sed
             DefaultPath=$(env -i HOME="$HOME" /bin/bash -lc 'echo $PATH' | sed -e 's/:\.:/:/' -e 's/:\.$//')
         else
