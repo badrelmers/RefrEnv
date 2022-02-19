@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # author: Badr Elmers 2021
-# description: RefrEnv = refresh environment. for bash
+# description: RefrEnv = refresh environment. for bash of Cygwin/Msys2/GitBash
 # version: 1.1
 # https://github.com/badrelmers/RefrEnv
 # https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
 
-# this script is safe to use with the bash strict mode: set -eEu -o pipefail ; shopt -s inherit_errexit 
 ###########################################################################################
 
-RefrEnv_Temp_Dir="${TEMP}/RefrEnvBash"
+datenow=$(date +%Y%m%d_%H%M%S)
+RefrEnv_Temp_Dir="${TEMP}/RefrEnvBash_${datenow}_${RANDOM}${RANDOM}"
 
 # use subshell so we do not pollute the parent script
 (
@@ -33,7 +33,7 @@ DESCRIPTION
                                 variable if it is already defined in the actual bash session. 
                                 The PATH will be refreshed.
                                 
-    RefrEnv_ResetPath=yes       Reset the actual PATH inside bash, then refresh it with the new PATH.
+    RefrEnv_ResetPath=yes       Reset the actual PATH inside bash, then refresh it with a new PATH.
                                 this will delete any PATH added by the script who called RefrEnv. 
                                 it is equivalent to running a new bash session.
 
@@ -56,7 +56,7 @@ DESCRIPTION
     ### INFO #################################################################
     # This script reload environment variables inside bash every time you want environment changes to propagate, so you do not need to restart bash after setting a new variable with setx or when installing new apps which add new variables ...etc
 
-    # for PATH: this script append the new paths to the old path of the parent script which called this script; its better than overwriting the old path; otherwise it will delete any newly added path by the parent script
+    # for PATH: this script append the new paths to the old path of the parent script which called this script; its better than overwriting the old path; otherwise it will delete any newly added path by the parent script. if you need to reset the PATH use RefrEnv_ResetPath=yes
 
     # ________
     # windows recreate the path using three places at less:
@@ -67,8 +67,10 @@ DESCRIPTION
 
     # there is this too which cmd seems to read when first running, but it contains only TEMP and TMP,so this script will not use it
     # HKEY_USERS\.DEFAULT\Environment
-    
-    
+
+    # ________
+    # RefrEnv support the so called bash Strict Mode like: "set -eEu -o pipefail ; shopt -s inherit_errexit" , you can use the Strict Mode safely in your parent script without worry.
+
 '
 }
 
@@ -80,7 +82,7 @@ DESCRIPTION
     # all 32 characters: & % ' ( ) ~ + @ # $ { } [ ] ; , ` ! ^ | > < \ / " : ? * = . - _ & echo baaaad
     # and this:
     # (^.*)(Form Product=")([^"]*") FormType="[^"]*" FormID="([0-9][0-9]*)".*$
-    # and use set to print those variables and see if they are saved without change
+    # and use 'set' to print those variables and see if they are saved without change
     
     
 # invalid characters (illegal characters in file names) in Windows using NTFS
@@ -135,7 +137,7 @@ getNewlyAddedVars(){
     # get the newly added variables from registry which are not defined right now in bash
     local regPath="$1"
 
-    local IFSorg=$IFS
+    local IFSorg="$IFS"
     IFS=$'\n'
     
     # print all reg variables and remove critical ones, i created the list using: the windows registry, set declare compgen printenv env and the bash changelog : https://github.com/bminor/bash/blob/8868edaf2250e09c4e9a1c75ffe3274f28f38581/NEWS so it is up to bash-5.1
@@ -240,48 +242,69 @@ getNewPATHS(){
     local allPATHs="${HKLM};${HKCU};${HKCUV}"
     
     # after installing chocolatey it adds itself to the path like that: (D:\ProgramData\chocolatey\bin;) , the last ; should not have been added by chocolatey, this is an error by chocolatey , and it cause allPATHs to have double ;; , and this will make cygpath print (cygpath: can't convert empty path) . to solve it lets replace the double ;; with one ; this is safe. this solve https://github.com/badrelmers/RefrEnv/issues/1
-    printf '%s' "$allPATHs" | sed 's/;;/;/g' > "${RefrEnv_Temp_Dir}/path_need_to_expand.txt"
+    # printf '%s' "$allPATHs" | sed -e 's/;;/;/g' -e 's/;$//g'  > "${RefrEnv_Temp_Dir}/path_need_to_expand.txt"
+    # it s better to use ;;* so we can catch multiple ; like ;;; or ;;;;
+    printf '%s' "$allPATHs" | sed -e 's/;;*/;/g' -e 's/;$//g'  > "${RefrEnv_Temp_Dir}/path_need_to_expand.txt"
     ExpandEnvironmentStrings "$(cygpath -w "${RefrEnv_Temp_Dir}/path_need_to_expand.txt")" "$(cygpath -w "${RefrEnv_Temp_Dir}/path_expanded.txt")"
     local AllExpandedPaths
     AllExpandedPaths=$(cat "${RefrEnv_Temp_Dir}/path_expanded.txt")
      
     
-    local IFSorg=$IFS
-    IFS=':'
-    local i convertedPATHs DefaultPath
+    local IFSorg="$IFS"
+    local i convertedPATHs DefaultPath OSPATH_fromReg convertedItem convertedPATHs_FromWin convertedPATHs_FromBash
+
+    IFS=';'
+    for i in ${AllExpandedPaths} ; do 
+        # convert the windows path to the equivalent cygwin path format: cygdrive...
+        convertedItem=$(cygpath "$i")
+        convertedPATHs_FromWin+="${convertedItem}"$'\n'
+        OSPATH_fromReg+="${convertedItem}:"
+    done
+    # remove the last ':'
+    OSPATH_fromReg=$(printf '%s\n' "$OSPATH_fromReg" | sed 's/:$//g')
     
     if [[ ${RefrEnv_ResetPath:-} != yes ]] ; then
         # append the new paths to the old path; its better than overwriting the old path; otherwise i will delete any newly added path by the script who called this script
+        IFS=':'
         for i in ${PATH} ; do 
-            convertedPATHs+="$i"$'\n'
+            convertedPATHs_FromBash+="$i"$'\n'
         done
     fi
     
     if [[ ${RefrEnv_ResetPath:-} == yes ]] ; then
-        # reset the path
+        # reset the path : read the text of the function how_to_open_a_clean_bash_session() for more details
         # lets open a new bash session then capture the new path then add that path to our path, otherwise the bash default path will also be reseted so no command will work after that
         # check if we are in a login shell
         if shopt -q login_shell ; then
             # we are in a login shell
             # env -i clears HOME, so even if you run bash -l on the inside, it won't read your .bash_profile etc .so to solve it we use HOME="$HOME" https://unix.stackexchange.com/questions/48994/how-to-run-a-program-in-a-clean-environment-in-bash/451389#451389
             # env -i adds a dot (.) to the path!, this is bad so lets remove that dot with sed
-            DefaultPath=$(env -i HOME="$HOME" /bin/bash -lc 'echo $PATH' | sed -e 's/:\.:/:/' -e 's/:\.$//')
+            # DefaultPath=$(env -i HOME="$HOME" /bin/bash -lc 'echo $PATH' | sed -e 's/:\.:/:/' -e 's/:\.$//')
+            # the above some times work badly see: https://github.com/badrelmers/RefrEnv/issues/1
+            
+            # solution:
+            # sourcing ${RefrEnv_Temp_Dir}/newEnv.sh inside bash running by env -i is super important because if some variable in .bash_profile...etc need a variable that is setup in the OS registry then it will fail because env -i do not setup those variables like a fresh bash do when we run it manually (I mean env -i do not inherit explorer env) , so we source newEnv.sh to setup those variables to have the same environment as a fresh bash 
+            # but remember that maybe .bash_profile...etc need some other variable that env -i strips, so be prepared to add more variables here like i did with $HOME $USER $LC_ALL ...etc
+            # DefaultPath=$(env -i RefrEnvSetupEnv="${RefrEnv_Temp_Dir}/newEnv.sh" HOME="$HOME" LANGUAGE="${LANGUAGE:-}" LANG="${LANG:-}" LC_ALL="${LC_ALL:-}" USER="$USER" TERM="${TERM:-}" PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$OSPATH_fromReg" "$BASH" -l -c 'source "${RefrEnvSetupEnv}" >/dev/null 2>/dev/null; printf "%s\n" "$PATH"' | sed -e 's/:\.:/:/' -e 's/:\.$//')
+            
+            # a better solution i found finally is to use env -u PATH instead of env -i... this is a life saver!
+                # -u, --unset=NAME   remove variable from the environment
+            # it is good to unset ORIGINAL_PATH too otherwise ...etc\profile of msys2/git bash will use it to setup the new PATH and if it contain an old dir we do not want then it will be inherited in the new PATH
+            # so with this solution we can pass all our actual environment to the new bash session and exclude the  PATH
+            DefaultPath=$(env -u PATH -u ORIGINAL_PATH PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$OSPATH_fromReg" "$BASH" -l -c 'printf "%s\n" "$PATH"' | sed -e 's/:\.:/:/' -e 's/:\.$//')
         else
-            DefaultPath=$(env -i HOME="$HOME" /bin/bash -c 'echo $PATH' | sed -e 's/:\.:/:/' -e 's/:\.$//')
+            DefaultPath=$(env -u PATH -u ORIGINAL_PATH PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$OSPATH_fromReg" "$BASH"    -c 'printf "%s\n" "$PATH"' | sed -e 's/:\.:/:/' -e 's/:\.$//')
         fi
-        
+
+        IFS=':'
         for i in ${DefaultPath} ; do 
-            convertedPATHs+="$i"$'\n'
+            convertedPATHs_FromBash+="$i"$'\n'
         done
     fi
-    
-    IFS=';'
-    local i convertedPATHs
-    for i in ${AllExpandedPaths} ; do 
-        # convert the windows path to the equivalent cygwin path format: cygdrive...
-        convertedPATHs+=$(cygpath "$i")$'\n'
-    done
-    
+
+    # the order here is very important , if we put $convertedPATHs_FromWin before $convertedPATHs_FromBash then for example we will be using 'sort' of windows not of bash
+    convertedPATHs="$convertedPATHs_FromBash$convertedPATHs_FromWin"
+
     # remove the last slash / so i catch duplicates which differ in the last slash only like: abc:abc/
     convertedPATHs=$(printf '%s' "$convertedPATHs" | sed 's/\/$//g')
 
@@ -352,4 +375,164 @@ if [[ ${RefrEnv_help:-} != yes ]] ; then
 fi
 
 unset RefrEnv_Temp_Dir
+
+
+
+### end ######################################################################
+
+
+
+
+
+### some details######################################################################
+
+how_to_open_a_clean_bash_session(){
+    # test to show how to run a new bash session with a clean environment, well in fact i want a new bash session without some env var like PATH, but i want to keep important var needed by other apps like $HOME $USER $LC_ALL
+
+
+    PATH="00000000000000000000000000000:$PATH"
+
+    # _________________cygwin 
+    bash -c 'echo $PATH'      # baaaaaaaaad this do not reset the path
+    bash -lc 'echo $PATH'     # baaaaaaaaad this do not reset the path
+
+    # _________________git bash
+    bash -c 'echo $PATH'      # baaaaaaaaad this do not reset the path
+    bash -lc 'echo $PATH'     # goooooooooood this reset the path because it reads "D:\Program Files\Git\etc\profile" which reset the path
+
+
+    # so i need to use env -i to solve it for cygwin
+
+    # _________________git bash
+    # - baaaaaaaaad : 2 errors
+    env -i HOME=$HOME /bin/bash -lc 'echo $PATH'
+    # return 
+        # which: no bash in ((null))
+        # /d/Users/LLED2/.bash_profile: line 7: oh-my-posh: command not found
+        # /d/Users/LLED2/bin:/mingw64/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:.:/usr/bin/vendor_perl:/usr/bin/core_perl
+
+    # - this is usefull only if the parent script is not a login shell
+    env -i HOME=$HOME /bin/bash -c 'echo $PATH'
+        # return /usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:.
+
+    # - baaaaaaaaad this do not reset the path : 0000000...
+    env HOME=$HOME /bin/bash -c 'echo $PATH'
+        # return 00000000000000000000000000000:/d/Users/LLED2/bin:/mingw64/bin:/usr/local/bin:/usr/bin:/bin:/mingw64/bin:/usr/bin:/d/Users/LLED2/bin:/d/Windows/system32:/d/Windows:/d/Windows/System32/Wbem:/d/Windows/System32/WindowsPowerShell/v1.0:......:/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/bin:/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/themes:/usr/bin/vendor_perl:/usr/bin/core_perl
+
+    # - goooooooooood this reset the path
+    env HOME=$HOME /bin/bash -lc 'echo $PATH'
+        # return /d/Users/LLED2/bin:/mingw64/bin:/usr/local/bin:/usr/bin:/bin:/mingw64/bin:/usr/bin:/d/Users/LLED2/bin:/d/Windows/system32:/d/Windows:/d/Windows/System32/Wbem:/d/Windows/System32/WindowsPowerShell/v1.0:......:/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/bin:/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/themes:/usr/bin/vendor_perl:/usr/bin/core_perl
+
+    # _________________cygwin
+    # - baaaaaaaaad : 1 error
+    env -i HOME=$HOME /bin/bash -lc 'echo $PATH'
+    # return
+        # /home/LLED2/.bash_profile: line 63: oh-my-posh: command not found
+        # /usr/local/bin:/usr/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:.
+
+    # - this is usefull only if the parent script is not a login shell
+    env -i HOME=$HOME /bin/bash -c 'echo $PATH'
+        # return /usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:.
+
+    # - baaaaaaaaad this do not reset the path
+    env HOME=$HOME /bin/bash -c 'echo $PATH'
+        # return 00000000000000000000000000000:/cygdrive/F/_bin/_bin/git/_PortableGit/_last/cmd:/usr/local/bin:/usr/bin:/cygdrive/d/Windows/system32:/cygdrive/d/Windows:/cygdrive/d/Windows/System32/Wbem:/cygdrive/d/Windows/System32/WindowsPowerShell/v1.0:......:/cygdrive/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/bin:/cygdrive/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/themes:/usr/lib/lapack:/home/LLED2/.local/bin:/home/LLED2/_bin
+
+    # - baaaaaaaaad this do not reset the path
+    env HOME=$HOME /bin/bash -lc 'echo $PATH'
+        # return /cygdrive/F/_bin/_bin/git/_PortableGit/_last/cmd:00000000000000000000000000000:/cygdrive/F/_bin/_bin/git/_PortableGit/_last/cmd:/usr/local/bin:/usr/bin:/cygdrive/d/Windows/system32:/cygdrive/d/Windows:/cygdrive/d/Windows/System32/Wbem:/cygdrive/d/Windows/System32/WindowsPowerShell/v1.0:......:/cygdrive/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/bin:/cygdrive/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/themes:/usr/lib/lapack:/home/LLED2/.local/bin:/home/LLED2/_bin:/home/LLED2/.local/bin:/home/LLED2/_bin
+
+    ####################
+    # solution:
+    ####################
+    # if we r in non login bash then we use:
+    env -i HOME=$HOME /bin/bash -c 'echo $PATH'
+
+
+    # if we r in login bash then we use one of this:
+    # _________________solution1: the best
+    # we can use this: add default bash path manually ,it solves the error 'which: no bash in ((null))' which happen in git bash and msys2:
+    # this happen because "D:\Program Files\Git\etc\profile" use SHELL=`which bash`, and because the PATH is not exported then 'which' cannot read the PATH (if I use export inside ...etc\profile then 'which' work fine: the ((null)) simply means that the PATH is not setup). but why PATH is not exported automatically? I found a nice explination here https://unix.stackexchange.com/questions/50282/usr-bin-which-returns-cryptic-error-which-no-ls-in-null
+        # I had the same problem (using bash). It seems, a bash "feature" turns into a miss-feature: Bash creates a shell variable (not environment variable!) PATH which it then uses for lookups.
+        # So, the situation is: There exists a shell variable called PATH. But it's not an environment variable. This means, it's not exported to newly created child processes. One thing, we should learn from this, is that using echo $PATH is no way to figure out whether the environment variable PATH is set. Same prolem with set | grep "^PATH=" However, one way to do so is by using the external command env: env | grep "^PATH="
+        # ...
+        # Depending on what you're trying to achieve, you can ask the shell to act like a login shell, for bash it's -l. With that, /etc/profile and other files are sources which set up PATH properly by default:
+        # env -i bash -l
+        # The alternative, is to export PATH, see above.
+
+    # his solution to use bash -l will not work in our case here because the problem happen ...etc\profile before that ...etc\profile even export the PATH
+        # so to solve this we need to pass the PATH to env -i , because it seems that env will export the PATH for us, see this test:
+        env -i HOME=$HOME "$BASH" -c 'env | grep "^PATH="'
+            # return nothing
+        env -i HOME=$HOME PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin "$BASH" -c 'echo $PATH'
+            # return /usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
+
+    # so the solution is to use:
+        env -i HOME=$HOME PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin "$BASH" -lc 'echo $PATH'
+
+    # we solved the first error but we still have this error 'oh-my-posh: command not found', it happens in cygwin and git bash (because the path do not contain the OS path inhereited by the explorer, the PATH contain only cygwin/msys2 path):
+        # /d/Users/LLED2/.bash_profile: line 7: oh-my-posh: command not found
+
+    # to solve it we can do:
+    # met1: hide the error because it s not important to run correctly the bash_profile because we only want the path here, but if the bash_profile setup any path entry based on a the existence of a command then this will be a bad solution or even dangerous   
+        env -i HOME=$HOME PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin" bash -lc 'echo $PATH' 2>/dev/null || true
+
+    # met2: append the OS path we get from the reg : this is the safest method
+        env -i HOME=$HOME PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$OSPATH_fromReg" "$BASH" -lc 'echo $PATH'
+
+        
+    # met3: a better solution i found finally is to use env -u PATH instead of env -i... this is a life saver!
+        # -u, --unset=NAME   remove variable from the environment
+    # it is good to unset ORIGINAL_PATH too otherwise ...etc\profile of msys2/git bash will use it to setup the new PATH and if it contain an old dir we do not want then it will be inherited in the new PATH
+    # so with this solution we can pass all our actual environment to the new bash session and exclude the  PATH
+        OSPATH_fromReg=/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/bin
+        env -u PATH -u ORIGINAL_PATH PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$OSPATH_fromReg" "$BASH" -l -c 'printf "%s\n" "$PATH"'
+
+
+    # _________________solution2: I don t like this solution
+    # one solution that works too is to not use the -l with bash, but if the parent script who called refrenv used -l, then the path will not contain entries that are created when -l is used normally
+        env -i HOME=$HOME /bin/bash -c 'echo $PATH'
+
+    # _________________solution3: hackish
+    # this work to reset the env but i cannot capture the output
+    explorer "$(cygpath -w $(env bash))"
+
+    # but i can create a bat file then call "explorer file.bat" and run bash from it and capture the path , this will be best , but calling explorer is a litle bit hackish
+
+    # _________________solution4: TODO
+    # case "$(uname -s)" in
+       # CYGWIN*)  echo 'CYGWIN' ;;
+       # MINGW*)   echo 'MINGW' ;;
+       # MSYS*|)   echo 'MSYS' ;;
+       # *)        echo 'Other bash OS' ;;
+    # esac
+    # or 
+    # case "$OSTYPE" in
+      # msys*)    echo "MSYS / MinGW / Git Bash" ;;
+      # cygwin*)  echo "Cygwin" ;;
+      # *)        echo "unknown: $OSTYPE" ;;
+    # esac
+
+
+    # __________________________more details
+    # https://unix.stackexchange.com/questions/48994/how-to-run-a-program-in-a-clean-environment-in-bash
+    # env -i clears HOME, so even if you run bash -l on the inside, it won't read your .bash_profile etc. If what you're looking for is a shell that acts as if you had just done a fresh login, you'd want this instead:
+    # env -i HOME="$HOME" bash -l -c 'your_command'
+
+    # ________
+    # env -i somecommand runs a command in an empty environment, as ams has already mentioned.
+    # A lot of programs rely on some important environment variables, so you may want to retain them:
+    # env -i HOME="$HOME" LC_CTYPE="${LC_ALL:-${LC_CTYPE:-$LANG}}" PATH="$PATH" USER="$USER" somecommand
+
+    # ________
+    # You can get a fresh environment for the bash shell via env -i USER=user HOME=/home/user PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin bash -l. You really only need to set the USER, HOME, and PATH environment variables; plus LANGUAGE, LANG, and LC_ALL or other LC_ ones if you want some locale other than the default POSIX/C one; TERM (and -i option to bash) if interactive or use a terminal, and DISPLAY if using X11. But honestly, a PAM module is a much easier option. It's not nearly as hard to write the module as you might think. –  https://stackoverflow.com/questions/18094242/how-can-i-call-bash-from-c-with-a-clean-environment
+
+    # ________
+    # more reads:
+    # https://unix.stackexchange.com/questions/341999/can-bash-script-reset-sanitize-whole-environment-and-how
+    # https://unix.stackexchange.com/questions/446571/isolated-subshells-in-bash
+
+    
+}
+
 
