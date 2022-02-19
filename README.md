@@ -1,7 +1,7 @@
 # RefrEnv - *Refr*esh the *Env*ironment
 Reload environment variables inside cmd/bash/powershell every time you want environment changes to propagate, so you do not need to restart them after setting a new variable with setx or after installing a new app which adds new variables.
 
-This is a better alternative to the chocolatey refreshenv for cmd (and works for bash too (cygwin)), which solves several problems in the chocolatey refreshenv, like:
+This is a better alternative to the chocolatey refreshenv for cmd (and works for bash too (cygwin/Msys2/GitBash)), which solves several problems in the chocolatey refreshenv, like:
  - The Chocolatey **refreshenv** act **bad** if the variable have some
    cmd meta-characters, see this test:
    
@@ -68,7 +68,7 @@ DESCRIPTION
                                 variable if it is already defined in the actual bash session. 
                                 The PATH will be refreshed.
                                 
-    RefrEnv_ResetPath=yes       Reset the actual PATH inside bash, then refresh it with the new PATH.
+    RefrEnv_ResetPath=yes       Reset the actual PATH inside bash, then refresh it with a new PATH.
                                 this will delete any PATH added by the script who called RefrEnv. 
                                 it is equivalent to running a new bash session.
 
@@ -85,6 +85,10 @@ DESCRIPTION
     ALLUSERSPROFILE APPDATA CommonProgramFiles ...
     - bash vars:
     BASH BASHOPTS BASHPID BASH_ALIASES BASH_ARGC ...
+    
+    
+    RefrEnv support the so called bash Strict Mode like: "set -eEu -o pipefail ; shopt -s inherit_errexit" , you can use the Strict Mode safely in your parent script without worry.
+
 ```
  
 
