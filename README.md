@@ -34,6 +34,11 @@ This is a better alternative to the chocolatey refreshenv for cmd (and works for
 [more info][2]
 
 # Usage:
+```batch
+git clone https://github.com/badrelmers/RefrEnv
+cd RefrEnv
+```
+
 ## For cmd
 This script uses vbscript so it works in all windows versions **xp+**
 
