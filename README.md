@@ -92,7 +92,7 @@ DESCRIPTION
                               
     RefrEnv_help=yes            Print the help.
 
-    *critical variables: are variables which belong to bash or windows and should not be refreshed normally like:
+    *critical variables: are variables which belong to bash/zsh or windows and should not be refreshed normally like:
     - windows vars:
     ALLUSERSPROFILE APPDATA CommonProgramFiles ...
     - bash/zsh vars: (TODO: the zsh list is not finished yet)
