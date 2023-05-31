@@ -1,7 +1,7 @@
 # RefrEnv - *Refr*esh the *Env*ironment
-Reload environment variables inside cmd/bash/powershell every time you want environment changes to propagate, so you do not need to restart them after setting a new variable with setx or after installing a new app which adds new variables.
+Reload environment variables inside `CMD`, `Bash`, `Powershell` or `Zsh` every time you want environment changes to propagate, so you do not need to restart them after setting a new variable with setx or after installing a new app which adds new variables.
 
-This is a better alternative to the chocolatey refreshenv for cmd (and works for bash too (cygwin/Msys2/GitBash)), which solves several problems in the chocolatey refreshenv, like:
+This is a better alternative to the chocolatey refreshenv for cmd (and works for `bash` and `zsh` too (`cygwin`, `Msys2` and `GitBash`)), which solves several problems in the chocolatey refreshenv, like:
  - The Chocolatey **refreshenv** act **bad** if the variable have some
    cmd meta-characters, see this test:
    
@@ -58,11 +58,18 @@ Call it from bash with:
 ```bash
 source refrenv.sh
 ```
-#### Opciones for RefrEnv in bash 
+
+## For Zsh:
+Call it from Zsh with: 
+```bash
+source refrenvz.sh
+```
+#### Opciones for RefrEnv in bash and zsh 
 ```
 SYNOPSIS
     source refrenv.sh
-    
+    source refrenvz.sh
+
 DESCRIPTION
     By default with no arguments, this script will do a full 
     refresh (refresh all non critical variables*, and refresh the PATH).
@@ -70,12 +77,12 @@ DESCRIPTION
     use can use the following variables to change some behaviours:
     
     RefrEnv_StrictRefresh=yes   Strict mode (secure refresh). this prevent refreshing a
-                                variable if it is already defined in the actual bash session. 
+                                variable if it is already defined in the actual bash/zsh session. 
                                 The PATH will be refreshed.
                                 
-    RefrEnv_ResetPath=yes       Reset the actual PATH inside bash, then refresh it with a new PATH.
+    RefrEnv_ResetPath=yes       Reset the actual PATH inside bash/zsh, then refresh it with a new PATH.
                                 this will delete any PATH added by the script who called RefrEnv. 
-                                it is equivalent to running a new bash session.
+                                it is equivalent to running a new bash/zsh session.
 
     RefrEnv_debug=yes           Debug what this script do. The folder containing the 
                                 files used to set the variables will be open, then see 
@@ -88,11 +95,11 @@ DESCRIPTION
     *critical variables: are variables which belong to bash or windows and should not be refreshed normally like:
     - windows vars:
     ALLUSERSPROFILE APPDATA CommonProgramFiles ...
-    - bash vars:
+    - bash/zsh vars: (TODO: the zsh list is not finished yet)
     BASH BASHOPTS BASHPID BASH_ALIASES BASH_ARGC ...
     
     
-    RefrEnv support the so called bash Strict Mode like: "set -eEu -o pipefail ; shopt -s inherit_errexit" , you can use the Strict Mode safely in your parent script without worry.
+    RefrEnv support the so called bash/zsh Strict Mode like: "set -eEu -o pipefail ; shopt -s inherit_errexit" , you can use the Strict Mode safely in your parent script without worry.
 
 ```
  
