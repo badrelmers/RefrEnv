@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# author: Badr Elmers 2021
+# author: Badr Elmers 2021-2023
 # description: RefrEnv = refresh environment. for bash of Cygwin/Msys2/GitBash
-# version: 1.1
+# version: 1.2
 # https://github.com/badrelmers/RefrEnv
 # https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
 
@@ -235,8 +235,8 @@ getNewlyAddedVars(){
 getNewPATHS(){ 
     local HKLM HKCU HKCUV
     HKLM=$(regtool get '/HKLM/System/CurrentControlSet/Control/Session Manager/Environment/path')
-    HKCU=$(regtool get '/HKCU/Environment/path')
-    # volatile path is not always defined so let s hide the stderror 
+    # '/HKCU/Environment/path' and '/HKCU/Volatile Environment/path' are not always defined so let s hide the stderror 
+    HKCU=$(regtool get '/HKCU/Environment/path' 2>/dev/null) || true
     HKCUV=$(regtool get '/HKCU/Volatile Environment/path' 2>/dev/null) || true
 
     local allPATHs="${HKLM};${HKCU};${HKCUV}"
