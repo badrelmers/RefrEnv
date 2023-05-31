@@ -3,8 +3,9 @@
 REM PUSHD "%~dp0"
 
 
-REM author: Badr Elmers 2021
+REM author: Badr Elmers 2021-2023
 REM description: refrenv = refresh environment. this is a better alternative to the chocolatey refreshenv for cmd
+REM version: 1.0
 REM https://github.com/badrelmers/RefrEnv
 REM https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
 
