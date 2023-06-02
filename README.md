@@ -10,26 +10,22 @@ This is a better alternative to the chocolatey refreshenv for cmd (and works for
    `baaaaaaaaaad` which is very bad, and the new path is not added to
    your path variable.
    
-   This script solve this and you can test it with any meta-character, even something so bad like: 
+   `RefrEnv` solve this and you can test it with any meta-character, even something so bad like: 
    ```
    ; & % ' ( ) ~ + @ # $ { } [ ] , ` ! ^ | > < \ / " : ? * = . - _ & echo baaaad
    ```
  - refreshenv adds only **system** and **user**
    environment variables, but CMD adds **volatile** variables too
-   (HKCU\Volatile Environment). This script will merge all the three and
+   (HKCU\Volatile Environment). `RefrEnv` will merge all the three and
    **remove any duplicates**.
 
- - refreshenv reset your PATH. This script append the new path to the
-   old path of the parent script which called this script. It is better
+ - refreshenv reset your PATH. `RefrEnv` append the new path to the
+   old path of the parent script which called `RefrEnv`. It is better
    than overwriting the old path, otherwise it will delete any newly
    added path by the parent script.
 
- - This script solve this problem described in a comment [here][1] by @Gene Mayevsky: refreshenv *modifies env variables TEMP and TMP replacing
-   them with values stored in HKCU\Environment. In my case I run the
-   script to update env variables modified by Jenkins job on a slave
-   that's running under SYSTEM account, so TEMP and TMP get substituted
-   by %USERPROFILE%\AppData\Local\Temp instead of C:\Windows\Temp. This
-   breaks build because linker cannot open system profile's Temp folder.*
+ - `RefrEnv` solve this problem described in a comment [here][1] by @Gene Mayevsky: 
+     > refreshenv *modifies env variables TEMP and TMP replacing them with values stored in HKCU\Environment. In my case I run the script to update env variables modified by Jenkins job on a slave that's running under SYSTEM account, so TEMP and TMP get substituted by %USERPROFILE%\AppData\Local\Temp instead of C:\Windows\Temp. This breaks build because linker cannot open system profile's Temp folder.*
 
 [more info][2]
 
@@ -39,28 +35,24 @@ git clone https://github.com/badrelmers/RefrEnv
 cd RefrEnv
 ```
 
-## For cmd
-This script uses vbscript so it works in all windows versions **xp+**
+## cmd
+Works in all windows versions **xp+**
 
-Call it from cmd with: 
 ```batch
 call refrenv.bat
 ```
 
-## For Powershell
-Call it from Powershell with:
+## Powershell
 ```powershell
 . .\refrenv.ps1
 ```
 
-## For Cygwin/bash:
-Call it from bash with: 
+## bash:
 ```bash
 source refrenv.sh
 ```
 
-## For Zsh:
-Call it from Zsh with: 
+## Zsh:
 ```bash
 source refrenvz.sh
 ```
@@ -71,7 +63,7 @@ SYNOPSIS
     source refrenvz.sh
 
 DESCRIPTION
-    By default with no arguments, this script will do a full 
+    By default with no arguments, RefrEnv will do a full 
     refresh (refresh all non critical variables*, and refresh the PATH).
 
     use can use the following variables to change some behaviours:
@@ -84,7 +76,7 @@ DESCRIPTION
                                 this will delete any PATH added by the script who called RefrEnv. 
                                 it is equivalent to running a new bash/zsh session.
 
-    RefrEnv_debug=yes           Debug what this script do. The folder containing the 
+    RefrEnv_debug=yes           Debug what RefrEnv do. The folder containing the 
                                 files used to set the variables will be open, then see 
                                 _NewEnv.sh this is the file which run inside your script
                                 to setup the new variables, you can also revise the 
@@ -92,14 +84,14 @@ DESCRIPTION
                               
     RefrEnv_help=yes            Print the help.
 
-    *critical variables: are variables which belong to bash/zsh or windows and should not be refreshed normally like:
-    - windows vars:
-    ALLUSERSPROFILE APPDATA CommonProgramFiles ...
-    - bash/zsh vars: (TODO: the zsh list is not finished yet)
-    BASH BASHOPTS BASHPID BASH_ALIASES BASH_ARGC ...
+    *critical variables: are the built-in variables which belong to bash/zsh or windows and should 
+    not be refreshed normally like:
+    - windows vars: ALLUSERSPROFILE APPDATA CommonProgramFiles ...
+    - bash/zsh vars: BASH BASHOPTS BASHPID BASH_ALIASES BASH_ARGC ...
     
     
-    RefrEnv support the so called bash/zsh Strict Mode like: "set -eEu -o pipefail ; shopt -s inherit_errexit" , you can use the Strict Mode safely in your parent script without worry.
+    RefrEnv support the so called bash Strict Mode like: "set -eEu -o pipefail ; shopt -s inherit_errexit"
+    you can use the Strict Mode safely in your parent script without worry.
 
 ```
  

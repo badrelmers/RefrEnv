@@ -27,49 +27,86 @@ DESCRIPTION
     By default with no arguments, this script will do a full 
     refresh (refresh all non critical variables*, and refresh the PATH).
 
-    use can use the following variables to change some behaviours:
+    you can use the following variables to change some behaviours:
     
-    RefrEnv_StrictRefresh=yes   Strict mode (secure refresh). this prevent refreshing a
-                                variable if it is already defined in the actual bash session. 
+    RefrEnv_StrictRefresh=yes   Strict mode (secure refresh). this prevent 
+                                refreshing a variable if it is already defined  
+                                in the actual bash session. 
                                 The PATH will be refreshed.
                                 
-    RefrEnv_ResetPath=yes       Reset the actual PATH inside bash, then refresh it with a new PATH.
-                                this will delete any PATH added by the script who called RefrEnv. 
-                                it is equivalent to running a new bash session.
+    RefrEnv_ResetPath=yes       Reset the actual PATH inside bash, then refresh
+                                it with a new PATH. This will delete any PATH 
+                                added by the script who called RefrEnv. It is 
+                                equivalent to running a new bash session.
 
-    RefrEnv_debug=yes           Debug what this script do. The folder containing the 
-                                files used to set the variables will be open, then see 
-                                _NewEnv.sh this is the file which run inside your script
-                                to setup the new variables, you can also revise the 
-                                intermediate .txt files.
+    RefrEnv_debug=yes           Debug what this script do. The folder containing
+                                the files used to set the variables will be
+                                open, then see _NewEnv.sh, this is the file
+                                which run inside your script to setup the new
+                                variables, you can also revise the intermediate
+                                .txt files.
                               
     RefrEnv_help=yes            Print the help.
 
-    you can also put this script in windows\systems32 or another place in your $PATH then call it from an interactive console by writing: source refrenv.sh
+    you can also put this script in windows\systems32 or another place in your 
+    $PATH then call it from an interactive console by writing: source refrenv.sh
 
-    *critical variables: are variables which belong to bash or windows and should not be refreshed normally like:
+    *critical variables: are variables which belong to bash or windows and should
+    not be refreshed normally like:
     - windows vars:
-    ALLUSERSPROFILE APPDATA CommonProgramFiles CommonProgramFiles(x86) CommonProgramW6432 COMPUTERNAME ComSpec HOMEDRIVE HOMEPATH LOCALAPPDATA LOGONSERVER NUMBER_OF_PROCESSORS OS PATHEXT PROCESSOR_ARCHITECTURE PROCESSOR_ARCHITEW6432 PROCESSOR_IDENTIFIER PROCESSOR_LEVEL PROCESSOR_REVISION ProgramData ProgramFiles ProgramFiles(x86) ProgramW6432 PUBLIC SystemDrive SystemRoot TEMP TMP USERDOMAIN USERDOMAIN_ROAMINGPROFILE USERNAME USERPROFILE windir SESSIONNAME
+        ALLUSERSPROFILE APPDATA CommonProgramFiles CommonProgramFiles(x86)
+        CommonProgramW6432 COMPUTERNAME ComSpec HOMEDRIVE HOMEPATH LOCALAPPDATA 
+        LOGONSERVER NUMBER_OF_PROCESSORS OS PATHEXT PROCESSOR_ARCHITECTURE 
+        PROCESSOR_ARCHITEW6432 PROCESSOR_IDENTIFIER PROCESSOR_LEVEL 
+        PROCESSOR_REVISION ProgramData ProgramFiles ProgramFiles(x86) 
+        ProgramW6432 PUBLIC SystemDrive SystemRoot TEMP TMP USERDOMAIN 
+        USERDOMAIN_ROAMINGPROFILE USERNAME USERPROFILE windir SESSIONNAME
     - bash vars:
-    BASH BASHOPTS BASHPID BASH_ALIASES BASH_ARGC BASH_ARGV BASH_CMDS BASH_COMMAND BASH_COMPLETION_VERSINFO BASH_LINENO BASH_REMATCH BASH_SOURCE BASH_SUBSHELL BASH_VERSINFO BASH_VERSION COLUMNS COMP_WORDBREAKS CYGWIN CYG_SYS_BASHRC DIRSTACK EUID EXECIGNORE FUNCNAME GROUPS HISTCMD HISTCONTROL HISTFILE HISTFILESIZE HISTSIZE HISTTIMEFORMAT HOME HOSTNAME HOSTTYPE IFS INFOPATH LANG LC_ALL LC_COLLATE LC_CTYPE LC_MESSAGES LC_MONETARY LC_NUMERIC LC_TIME LINENO LINES MACHTYPE MAILCHECK OLDPWD OPTERR OPTIND ORIGINAL_PATH OSTYPE PATH PIPESTATUS POSIXLY_CORRECT PPID PRINTER PROFILEREAD PROMPT_COMMAND PS0 PS1 PS2 PS3 PS4 PWD RANDOM SECONDS SHELL SHELLOPTS SHLVL SSH_ASKPASS TERM TERM_PROGRAM TERM_PROGRAM_VERSION TZ UID USER _backup_glob CHILD_MAX BASH_COMPAT FUNCNEST COMP_TYPE COMP_KEY READLINE_LINE_BUFFER READLINE_POINT PROMPT_DIRTRIM BASH_EXECUTION_STRING COPROC_PID COPROC GLOBIGNORE HISTIGNORE SRANDOM READLINE_MARK EPOCHSECONDS EPOCHREALTIME BASH_ARGV0 COMPREPLY COMP_CWORD COMP_LINE COMP_POINT COMP_WORDS EMACS FCEDIT FIGNORE HOSTFILE IGNOREEOF INPUTRC INSIDE_EMACS MAPFILE READLINE_LINE REPLY TIMEFORMAT TMOUT TMPDIR histchars
+        BASH BASHOPTS BASHPID BASH_ALIASES BASH_ARGC BASH_ARGV BASH_CMDS 
+        BASH_COMMAND BASH_COMPLETION_VERSINFO BASH_LINENO BASH_REMATCH 
+        BASH_SOURCE BASH_SUBSHELL BASH_VERSINFO BASH_VERSION COLUMNS 
+        COMP_WORDBREAKS CYGWIN CYG_SYS_BASHRC DIRSTACK EUID EXECIGNORE 
+        FUNCNAME GROUPS HISTCMD HISTCONTROL HISTFILE HISTFILESIZE HISTSIZE 
+        HISTTIMEFORMAT HOME HOSTNAME HOSTTYPE IFS INFOPATH LANG LC_ALL 
+        LC_COLLATE LC_CTYPE LC_MESSAGES LC_MONETARY LC_NUMERIC LC_TIME LINENO 
+        LINES MACHTYPE MAILCHECK OLDPWD OPTERR OPTIND ORIGINAL_PATH OSTYPE PATH 
+        PIPESTATUS POSIXLY_CORRECT PPID PRINTER PROFILEREAD PROMPT_COMMAND PS0 
+        PS1 PS2 PS3 PS4 PWD RANDOM SECONDS SHELL SHELLOPTS SHLVL SSH_ASKPASS 
+        TERM TERM_PROGRAM TERM_PROGRAM_VERSION TZ UID USER _backup_glob 
+        CHILD_MAX BASH_COMPAT FUNCNEST COMP_TYPE COMP_KEY READLINE_LINE_BUFFER 
+        READLINE_POINT PROMPT_DIRTRIM BASH_EXECUTION_STRING COPROC_PID COPROC 
+        GLOBIGNORE HISTIGNORE SRANDOM READLINE_MARK EPOCHSECONDS EPOCHREALTIME 
+        BASH_ARGV0 COMPREPLY COMP_CWORD COMP_LINE COMP_POINT COMP_WORDS EMACS 
+        FCEDIT FIGNORE HOSTFILE IGNOREEOF INPUTRC INSIDE_EMACS MAPFILE 
+        READLINE_LINE REPLY TIMEFORMAT TMOUT TMPDIR histchars
     
     ### INFO #################################################################
-    # This script reload environment variables inside bash every time you want environment changes to propagate, so you do not need to restart bash after setting a new variable with setx or when installing new apps which add new variables ...etc
+     This script reload environment variables inside bash every time you want 
+     environment changes to propagate, so you do not need to restart bash after 
+     setting a new variable with setx or when installing new apps which add new 
+     variables ...etc
 
-    # for PATH: this script append the new paths to the old path of the parent script which called this script; its better than overwriting the old path; otherwise it will delete any newly added path by the parent script. if you need to reset the PATH use RefrEnv_ResetPath=yes
+     for PATH: this script append the new paths to the old path of the parent 
+     script which called this script; its better than overwriting the old path; 
+     otherwise it will delete any newly added path by the parent script. if you 
+     need to reset the PATH use RefrEnv_ResetPath=yes
 
-    # ________
-    # windows recreate the path using three places at less:
-    # the User namespace:    HKCU\Environment
-    # the System namespace:  HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment
-    # the Session namespace: HKCU\Volatile Environment
-    # This script will merge all the three and remove any duplicates. this is what windows do by default too
+     ________
+     windows recreate the path using three places at least:
+     the User namespace:    HKCU\Environment
+     the System namespace:  HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment
+     the Session namespace: HKCU\Volatile Environment
+     This script will merge all the three and remove any duplicates. this is 
+     what windows do by default too
 
-    # there is this too which cmd seems to read when first running, but it contains only TEMP and TMP,so this script will not use it
-    # HKEY_USERS\.DEFAULT\Environment
+     there is this too which cmd seems to read when first running, but it 
+     contains only TEMP and TMP,so this script will not use it
+     HKEY_USERS\.DEFAULT\Environment
 
-    # ________
-    # RefrEnv support the so called bash Strict Mode like: "set -eEu -o pipefail ; shopt -s inherit_errexit" , you can use the Strict Mode safely in your parent script without worry.
+     ________
+     RefrEnv support the so called bash Strict Mode like: 
+     "set -eEu -o pipefail ; shopt -s inherit_errexit" , you can use the Strict 
+     Mode safely in your parent script without worry.
 
 '
 }
@@ -159,7 +196,7 @@ getNewlyAddedVars(){
     # so we need to exclude anything that does not follow those rules, otherwise we get errors like in https://github.com/badrelmers/RefrEnv/issues/2 , because windows allow to set vars like "z.z" , "z-z" and "z z" which bash and zsh will not accept https://unix.stackexchange.com/questions/93532/exporting-a-variable-with-dot-in-it . a simple  grep -e '^[a-zA-Z_][a-zA-Z0-9_]*$' solve this
     local regresult
     regresult=$(regtool list --list "${regPath}")
-    regresult=$(printf '%s' "${regresult}" | grep -e '^[a-zA-Z_][a-zA-Z0-9_]*$' | grep -i -v   -e '^ALLUSERSPROFILE$' -e '^APPDATA$' -e '^CommonProgramFiles$' -e '^CommonProgramFiles(x86)$' -e '^CommonProgramW6432$' -e '^COMPUTERNAME$' -e '^ComSpec$' -e '^HOMEDRIVE$' -e '^HOMEPATH$' -e '^LOCALAPPDATA$' -e '^LOGONSERVER$' -e '^NUMBER_OF_PROCESSORS$' -e '^OS$' -e '^PATHEXT$' -e '^PROCESSOR_ARCHITECTURE$' -e '^PROCESSOR_ARCHITEW6432$' -e '^PROCESSOR_IDENTIFIER$' -e '^PROCESSOR_LEVEL$' -e '^PROCESSOR_REVISION$' -e '^ProgramData$' -e '^ProgramFiles$' -e '^ProgramFiles(x86)$' -e '^ProgramW6432$' -e '^PUBLIC$' -e '^SystemDrive$' -e '^SystemRoot$' -e '^TEMP$' -e '^TMP$' -e '^USERDOMAIN$' -e '^USERDOMAIN_ROAMINGPROFILE$' -e '^USERNAME$' -e '^USERPROFILE$' -e '^windir$' -e '^SESSIONNAME$'                     -e '^BASH$' -e '^BASHOPTS$' -e '^BASHPID$' -e '^BASH_ALIASES$' -e '^BASH_ARGC$' -e '^BASH_ARGV$' -e '^BASH_CMDS$' -e '^BASH_COMMAND$' -e '^BASH_COMPLETION_VERSINFO$' -e '^BASH_LINENO$' -e '^BASH_REMATCH$' -e '^BASH_SOURCE$' -e '^BASH_SUBSHELL$' -e '^BASH_VERSINFO$' -e '^BASH_VERSION$' -e '^COLUMNS$' -e '^COMP_WORDBREAKS$' -e '^CYGWIN$' -e '^CYG_SYS_BASHRC$' -e '^DIRSTACK$' -e '^EUID$' -e '^EXECIGNORE$' -e '^FUNCNAME$' -e '^GROUPS$' -e '^HISTCMD$' -e '^HISTCONTROL$' -e '^HISTFILE$' -e '^HISTFILESIZE$' -e '^HISTSIZE$' -e '^HISTTIMEFORMAT$' -e '^HOME$' -e '^HOSTNAME$' -e '^HOSTTYPE$' -e '^IFS$' -e '^INFOPATH$' -e '^LANG$' -e '^LC_ALL$' -e '^LC_COLLATE$' -e '^LC_CTYPE$' -e '^LC_MESSAGES$' -e '^LC_MONETARY$' -e '^LC_NUMERIC$' -e '^LC_TIME$' -e '^LINENO$' -e '^LINES$' -e '^MACHTYPE$' -e '^MAILCHECK$' -e '^OLDPWD$' -e '^OPTERR$' -e '^OPTIND$' -e '^ORIGINAL_PATH$' -e '^OSTYPE$' -e '^PATH$' -e '^PIPESTATUS$' -e '^POSIXLY_CORRECT$' -e '^PPID$' -e '^PRINTER$' -e '^PROFILEREAD$' -e '^PROMPT_COMMAND$' -e '^PS0$' -e '^PS1$' -e '^PS2$' -e '^PS3$' -e '^PS4$' -e '^PWD$' -e '^RANDOM$' -e '^SECONDS$' -e '^SHELL$' -e '^SHELLOPTS$' -e '^SHLVL$' -e '^SSH_ASKPASS$' -e '^TERM$' -e '^TERM_PROGRAM$' -e '^TERM_PROGRAM_VERSION$' -e '^TZ$' -e '^UID$' -e '^USER$' -e '^_backup_glob$'           -e '^CHILD_MAX$' -e '^BASH_COMPAT$' -e '^FUNCNEST$' -e '^COMP_TYPE$' -e '^COMP_KEY$' -e '^READLINE_LINE_BUFFER$' -e '^READLINE_POINT$' -e '^PROMPT_DIRTRIM$' -e '^BASH_EXECUTION_STRING$' -e '^COPROC_PID$' -e '^COPROC$' -e '^GLOBIGNORE$' -e '^HISTIGNORE$' -e '^SRANDOM$' -e '^READLINE_MARK$' -e '^EPOCHSECONDS$' -e '^EPOCHREALTIME$' -e '^BASH_ARGV0$' -e '^COMPREPLY$' -e '^COMP_CWORD$' -e '^COMP_LINE$' -e '^COMP_POINT$' -e '^COMP_WORDS$' -e '^EMACS$' -e '^FCEDIT$' -e '^FIGNORE$' -e '^HOSTFILE$' -e '^IGNOREEOF$' -e '^INPUTRC$' -e '^INSIDE_EMACS$' -e '^MAPFILE$' -e '^READLINE_LINE$' -e '^REPLY$' -e '^TIMEFORMAT$' -e '^TMOUT$' -e '^TMPDIR$' -e '^histchars$') || true
+    regresult=$(printf '%s' "${regresult}" | grep -e '^[a-zA-Z_][a-zA-Z0-9_]*$' | grep -i -v -e '^ALLUSERSPROFILE$' -e '^APPDATA$' -e '^CommonProgramFiles$' -e '^CommonProgramFiles(x86)$' -e '^CommonProgramW6432$' -e '^COMPUTERNAME$' -e '^ComSpec$' -e '^HOMEDRIVE$' -e '^HOMEPATH$' -e '^LOCALAPPDATA$' -e '^LOGONSERVER$' -e '^NUMBER_OF_PROCESSORS$' -e '^OS$' -e '^PATHEXT$' -e '^PROCESSOR_ARCHITECTURE$' -e '^PROCESSOR_ARCHITEW6432$' -e '^PROCESSOR_IDENTIFIER$' -e '^PROCESSOR_LEVEL$' -e '^PROCESSOR_REVISION$' -e '^ProgramData$' -e '^ProgramFiles$' -e '^ProgramFiles(x86)$' -e '^ProgramW6432$' -e '^PUBLIC$' -e '^SystemDrive$' -e '^SystemRoot$' -e '^TEMP$' -e '^TMP$' -e '^USERDOMAIN$' -e '^USERDOMAIN_ROAMINGPROFILE$' -e '^USERNAME$' -e '^USERPROFILE$' -e '^windir$' -e '^SESSIONNAME$'                     -e '^BASH$' -e '^BASHOPTS$' -e '^BASHPID$' -e '^BASH_ALIASES$' -e '^BASH_ARGC$' -e '^BASH_ARGV$' -e '^BASH_CMDS$' -e '^BASH_COMMAND$' -e '^BASH_COMPLETION_VERSINFO$' -e '^BASH_LINENO$' -e '^BASH_REMATCH$' -e '^BASH_SOURCE$' -e '^BASH_SUBSHELL$' -e '^BASH_VERSINFO$' -e '^BASH_VERSION$' -e '^COLUMNS$' -e '^COMP_WORDBREAKS$' -e '^CYGWIN$' -e '^CYG_SYS_BASHRC$' -e '^DIRSTACK$' -e '^EUID$' -e '^EXECIGNORE$' -e '^FUNCNAME$' -e '^GROUPS$' -e '^HISTCMD$' -e '^HISTCONTROL$' -e '^HISTFILE$' -e '^HISTFILESIZE$' -e '^HISTSIZE$' -e '^HISTTIMEFORMAT$' -e '^HOME$' -e '^HOSTNAME$' -e '^HOSTTYPE$' -e '^IFS$' -e '^INFOPATH$' -e '^LANG$' -e '^LC_ALL$' -e '^LC_COLLATE$' -e '^LC_CTYPE$' -e '^LC_MESSAGES$' -e '^LC_MONETARY$' -e '^LC_NUMERIC$' -e '^LC_TIME$' -e '^LINENO$' -e '^LINES$' -e '^MACHTYPE$' -e '^MAILCHECK$' -e '^OLDPWD$' -e '^OPTERR$' -e '^OPTIND$' -e '^ORIGINAL_PATH$' -e '^OSTYPE$' -e '^PATH$' -e '^PIPESTATUS$' -e '^POSIXLY_CORRECT$' -e '^PPID$' -e '^PRINTER$' -e '^PROFILEREAD$' -e '^PROMPT_COMMAND$' -e '^PS0$' -e '^PS1$' -e '^PS2$' -e '^PS3$' -e '^PS4$' -e '^PWD$' -e '^RANDOM$' -e '^SECONDS$' -e '^SHELL$' -e '^SHELLOPTS$' -e '^SHLVL$' -e '^SSH_ASKPASS$' -e '^TERM$' -e '^TERM_PROGRAM$' -e '^TERM_PROGRAM_VERSION$' -e '^TZ$' -e '^UID$' -e '^USER$' -e '^_backup_glob$'           -e '^CHILD_MAX$' -e '^BASH_COMPAT$' -e '^FUNCNEST$' -e '^COMP_TYPE$' -e '^COMP_KEY$' -e '^READLINE_LINE_BUFFER$' -e '^READLINE_POINT$' -e '^PROMPT_DIRTRIM$' -e '^BASH_EXECUTION_STRING$' -e '^COPROC_PID$' -e '^COPROC$' -e '^GLOBIGNORE$' -e '^HISTIGNORE$' -e '^SRANDOM$' -e '^READLINE_MARK$' -e '^EPOCHSECONDS$' -e '^EPOCHREALTIME$' -e '^BASH_ARGV0$' -e '^COMPREPLY$' -e '^COMP_CWORD$' -e '^COMP_LINE$' -e '^COMP_POINT$' -e '^COMP_WORDS$' -e '^EMACS$' -e '^FCEDIT$' -e '^FIGNORE$' -e '^HOSTFILE$' -e '^IGNOREEOF$' -e '^INPUTRC$' -e '^INSIDE_EMACS$' -e '^MAPFILE$' -e '^READLINE_LINE$' -e '^REPLY$' -e '^TIMEFORMAT$' -e '^TMOUT$' -e '^TMPDIR$' -e '^histchars$') || true
     
     local regvar=""
     local i
@@ -200,16 +237,18 @@ getNewlyAddedVars(){
     fi
     
     # extract the values of the final key
+    local newVarKeysAndValue0=""
+    local newVarKeysAndValue==""
     local ALLnewVarsKeysAndValues=""
+    
     # don t quote $newVars i already override IFS so no worry about space, if i quote it the multiline is considered one word
     local i
     for i in $newVars ; do 
         if [[ "$i" != "" ]] ; then
             # if the variable have ' bad things may happen so lets escape it with '\''
-            local newVarKeysAndValue0
             newVarKeysAndValue0=$(regtool get "${regPath}/${i}" | sed "s/'/'\\\\''/g" )
-            local newVarKeysAndValue="export ${i}='${newVarKeysAndValue0}'"
-            local ALLnewVarsKeysAndValues+="${newVarKeysAndValue}"$'\n'
+            newVarKeysAndValue="export ${i}='${newVarKeysAndValue0}'"
+            ALLnewVarsKeysAndValues+="${newVarKeysAndValue}"$'\n'
         fi
     done
 
@@ -246,6 +285,7 @@ getNewPATHS(){
     HKCU=$(regtool get '/HKCU/Environment/path' 2>/dev/null) || true
     HKCUV=$(regtool get '/HKCU/Volatile Environment/path' 2>/dev/null) || true
 
+    # TODO: check here if we should do ${HKLM};${HKCU} or  ${HKCU};${HKLM} based on what the supported shells do, i think i should do ${HKCU};${HKLM}
     local allPATHs="${HKLM};${HKCU};${HKCUV}"
     
     # after installing chocolatey it adds itself to the path like that: (D:\ProgramData\chocolatey\bin;) , the last ; should not have been added by chocolatey, this is an error by chocolatey , and it cause allPATHs to have double ;; , and this will make cygpath print (cygpath: can't convert empty path) . to solve it lets replace the double ;; with one ; this is safe. this solve https://github.com/badrelmers/RefrEnv/issues/1

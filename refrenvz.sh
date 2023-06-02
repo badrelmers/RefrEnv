@@ -2,7 +2,7 @@
 
 # author: Badr Elmers 2021-2023
 # description: RefrEnv = refresh environment. for ZSH of Cygwin/Msys2/GitBash
-# version: 0.2
+# version: 1.0
 # https://github.com/badrelmers/RefrEnv
 # https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
 
@@ -21,56 +21,118 @@ NAME
     RefrEnv - Refresh the Environment for Zsh
 
 SYNOPSIS
-    source refrenv.sh
+    source refrenvz.sh
     
 DESCRIPTION
     By default with no arguments, this script will do a full 
     refresh (refresh all non critical variables*, and refresh the PATH).
 
-    use can use the following variables to change some behaviours:
+    you can use the following variables to change some behaviours:
     
-    RefrEnv_StrictRefresh=yes   Strict mode (secure refresh). this prevent refreshing a
-                                variable if it is already defined in the actual zsh session. 
+    RefrEnv_StrictRefresh=yes   Strict mode (secure refresh). this prevent 
+                                refreshing a variable if it is already defined  
+                                in the actual zsh session. 
                                 The PATH will be refreshed.
                                 
-    RefrEnv_ResetPath=yes       Reset the actual PATH inside zsh, then refresh it with a new PATH.
-                                this will delete any PATH added by the script who called RefrEnv. 
-                                it is equivalent to running a new zsh session.
+    RefrEnv_ResetPath=yes       Reset the actual PATH inside zsh, then refresh
+                                it with a new PATH. This will delete any PATH 
+                                added by the script who called RefrEnv. It is 
+                                equivalent to running a new zsh session.
 
-    RefrEnv_debug=yes           Debug what this script do. The folder containing the 
-                                files used to set the variables will be open, then see 
-                                _NewEnv.sh this is the file which run inside your script
-                                to setup the new variables, you can also revise the 
-                                intermediate .txt files.
+    RefrEnv_debug=yes           Debug what this script do. The folder containing
+                                the files used to set the variables will be
+                                open, then see _NewEnv.sh, this is the file
+                                which run inside your script to setup the new
+                                variables, you can also revise the intermediate
+                                .txt files.
                               
     RefrEnv_help=yes            Print the help.
 
-    you can also put this script in windows\systems32 or another place in your $PATH then call it from an interactive console by writing: source refrenv.sh
+    you can also put this script in windows\systems32 or another place in your 
+    $PATH then call it from an interactive console by writing: source refrenv.sh
 
-    *critical variables: are variables which belong to bash or windows and should not be refreshed normally like:
+    *critical variables: are variables which belong to zsh or windows and should
+    not be refreshed normally like:
     - windows vars:
-    ALLUSERSPROFILE APPDATA CommonProgramFiles CommonProgramFiles(x86) CommonProgramW6432 COMPUTERNAME ComSpec HOMEDRIVE HOMEPATH LOCALAPPDATA LOGONSERVER NUMBER_OF_PROCESSORS OS PATHEXT PROCESSOR_ARCHITECTURE PROCESSOR_ARCHITEW6432 PROCESSOR_IDENTIFIER PROCESSOR_LEVEL PROCESSOR_REVISION ProgramData ProgramFiles ProgramFiles(x86) ProgramW6432 PUBLIC SystemDrive SystemRoot TEMP TMP USERDOMAIN USERDOMAIN_ROAMINGPROFILE USERNAME USERPROFILE windir SESSIONNAME
+        ALLUSERSPROFILE APPDATA CommonProgramFiles CommonProgramFiles(x86)
+        CommonProgramW6432 COMPUTERNAME ComSpec HOMEDRIVE HOMEPATH LOCALAPPDATA 
+        LOGONSERVER NUMBER_OF_PROCESSORS OS PATHEXT PROCESSOR_ARCHITECTURE 
+        PROCESSOR_ARCHITEW6432 PROCESSOR_IDENTIFIER PROCESSOR_LEVEL 
+        PROCESSOR_REVISION ProgramData ProgramFiles ProgramFiles(x86) 
+        ProgramW6432 PUBLIC SystemDrive SystemRoot TEMP TMP USERDOMAIN 
+        USERDOMAIN_ROAMINGPROFILE USERNAME USERPROFILE windir SESSIONNAME
     - bash vars:
-    BASH BASHOPTS BASHPID BASH_ALIASES BASH_ARGC BASH_ARGV BASH_CMDS BASH_COMMAND BASH_COMPLETION_VERSINFO BASH_LINENO BASH_REMATCH BASH_SOURCE BASH_SUBSHELL BASH_VERSINFO BASH_VERSION COLUMNS COMP_WORDBREAKS CYGWIN CYG_SYS_BASHRC DIRSTACK EUID EXECIGNORE FUNCNAME GROUPS HISTCMD HISTCONTROL HISTFILE HISTFILESIZE HISTSIZE HISTTIMEFORMAT HOME HOSTNAME HOSTTYPE IFS INFOPATH LANG LC_ALL LC_COLLATE LC_CTYPE LC_MESSAGES LC_MONETARY LC_NUMERIC LC_TIME LINENO LINES MACHTYPE MAILCHECK OLDPWD OPTERR OPTIND ORIGINAL_PATH OSTYPE PATH PIPESTATUS POSIXLY_CORRECT PPID PRINTER PROFILEREAD PROMPT_COMMAND PS0 PS1 PS2 PS3 PS4 PWD RANDOM SECONDS SHELL SHELLOPTS SHLVL SSH_ASKPASS TERM TERM_PROGRAM TERM_PROGRAM_VERSION TZ UID USER _backup_glob CHILD_MAX BASH_COMPAT FUNCNEST COMP_TYPE COMP_KEY READLINE_LINE_BUFFER READLINE_POINT PROMPT_DIRTRIM BASH_EXECUTION_STRING COPROC_PID COPROC GLOBIGNORE HISTIGNORE SRANDOM READLINE_MARK EPOCHSECONDS EPOCHREALTIME BASH_ARGV0 COMPREPLY COMP_CWORD COMP_LINE COMP_POINT COMP_WORDS EMACS FCEDIT FIGNORE HOSTFILE IGNOREEOF INPUTRC INSIDE_EMACS MAPFILE READLINE_LINE REPLY TIMEFORMAT TMOUT TMPDIR histchars
-    - zsh vars: PROMPT PROMPT2 PROMPT3 PROMPT4 zsh_eval_context zsh_scheduled_events ZSH_ARGZERO ZSH_EVAL_CONTEXT ZSH_NAME ZSH_PATCHLEVEL ZSH_SUBSHELL ZSH_VERSION (TODO: not finished yet, need to add more)
+        BASH BASHOPTS BASHPID BASH_ALIASES BASH_ARGC BASH_ARGV BASH_CMDS 
+        BASH_COMMAND BASH_COMPLETION_VERSINFO BASH_LINENO BASH_REMATCH 
+        BASH_SOURCE BASH_SUBSHELL BASH_VERSINFO BASH_VERSION COLUMNS 
+        COMP_WORDBREAKS CYGWIN CYG_SYS_BASHRC DIRSTACK EUID EXECIGNORE 
+        FUNCNAME GROUPS HISTCMD HISTCONTROL HISTFILE HISTFILESIZE HISTSIZE 
+        HISTTIMEFORMAT HOME HOSTNAME HOSTTYPE IFS INFOPATH LANG LC_ALL 
+        LC_COLLATE LC_CTYPE LC_MESSAGES LC_MONETARY LC_NUMERIC LC_TIME LINENO 
+        LINES MACHTYPE MAILCHECK OLDPWD OPTERR OPTIND ORIGINAL_PATH OSTYPE PATH 
+        PIPESTATUS POSIXLY_CORRECT PPID PRINTER PROFILEREAD PROMPT_COMMAND PS0 
+        PS1 PS2 PS3 PS4 PWD RANDOM SECONDS SHELL SHELLOPTS SHLVL SSH_ASKPASS 
+        TERM TERM_PROGRAM TERM_PROGRAM_VERSION TZ UID USER _backup_glob 
+        CHILD_MAX BASH_COMPAT FUNCNEST COMP_TYPE COMP_KEY READLINE_LINE_BUFFER 
+        READLINE_POINT PROMPT_DIRTRIM BASH_EXECUTION_STRING COPROC_PID COPROC 
+        GLOBIGNORE HISTIGNORE SRANDOM READLINE_MARK EPOCHSECONDS EPOCHREALTIME 
+        BASH_ARGV0 COMPREPLY COMP_CWORD COMP_LINE COMP_POINT COMP_WORDS EMACS 
+        FCEDIT FIGNORE HOSTFILE IGNOREEOF INPUTRC INSIDE_EMACS MAPFILE 
+        READLINE_LINE REPLY TIMEFORMAT TMOUT TMPDIR histchars
+    - zsh vars: 
+        ARGC ARGV0 BAUD BUFFER BUFFERLINES CDPATH COLUMNS CONTEXT CORRECT_IGNORE
+        CORRECT_IGNORE_FILE CPUTYPE CURRENT CURSOR CUTBUFFER DIRSTACKSIZE EDITOR
+        EGID ENV EPOCHREALTIME EPOCHSECONDS ERRNO EUID FCEDIT FIGNORE FPATH 
+        FUNCNEST GID HELPDIR HISTCHARS HISTCMD HISTCONTROL HISTFILE HISTNO 
+        HISTORY_IGNORE HISTSIZE HOME HOST IFS IPREFIX ISEARCHMATCH_ACTIVE 
+        ISEARCHMATCH_END ISEARCHMATCH_START ISUFFIX KEYBOARD_HACK KEYTIMEOUT 
+        LINENO LINES LISTMAX LOGCHECK MACHTYPE MAILCHECK MAILPATH MANPATH 
+        MODULE_PATH NULLCMD OPTARG OPTIND OSTYPE PATH PPID PROFILEREAD PROMPT2 
+        PROMPT3 PROMPT4 PS2 PS3 PS4 PSVAR RANDOM READNULLCMD SAVEHIST SECONDS 
+        SHLVL SPROMPT TIMEFMT TMPPREFIX TRY_BLOCK_ERROR TRY_BLOCK_INTERRUPT TTY 
+        TTYIDLE UID USERNAME VENDOR WATCH WATCHFMT WORDCHARS ZLE_LINE_ABORTED 
+        ZSH_ARGZERO ZSH_EVAL_CONTEXT ZSH_NAME ZSH_PATCHLEVEL ZSH_SUBSHELL 
+        ZSH_VERSION aliases all_quotes argv bg bg_bold bg_no_bold bold_color 
+        builtins cdpath chpwd_functions color colour commands comppostfuncs 
+        compprefuncs compstate context dirstack dis_aliases dis_builtins 
+        dis_functions dis_functions_source dis_galiases dis_patchars 
+        dis_reswords dis_saliases epochtime errnos exact exact_string expl fg 
+        fg_bold fg_no_bold fignore fpath funcfiletrace funcsourcetrace 
+        funcstack functions functions_source functrace galiases histchars 
+        history historywords ignored incarg insert insert_positions jobdirs 
+        jobstates jobtexts keymaps mailpath manpath module_path modules 
+        nameddirs options parameters patchars path pipestatus prompt psvar 
+        reset_color reswords saliases signals status termcap terminfo userdirs 
+        usergroups watch widgets zle_bracketed_paste zsh_eval_context 
+        zsh_scheduled_events
 
     ### INFO #################################################################
-    # This script reload environment variables inside zsh every time you want environment changes to propagate, so you do not need to restart zsh after setting a new variable with setx or when installing new apps which add new variables ...etc
+     This script reload environment variables inside zsh every time you want 
+     environment changes to propagate, so you do not need to restart zsh after 
+     setting a new variable with setx or when installing new apps which add new 
+     variables ...etc
 
-    # for PATH: this script append the new paths to the old path of the parent script which called this script; its better than overwriting the old path; otherwise it will delete any newly added path by the parent script. if you need to reset the PATH use RefrEnv_ResetPath=yes
+     for PATH: this script append the new paths to the old path of the parent 
+     script which called this script; its better than overwriting the old path; 
+     otherwise it will delete any newly added path by the parent script. if you 
+     need to reset the PATH use RefrEnv_ResetPath=yes
 
-    # ________
-    # windows recreate the path using three places at less:
-    # the User namespace:    HKCU\Environment
-    # the System namespace:  HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment
-    # the Session namespace: HKCU\Volatile Environment
-    # This script will merge all the three and remove any duplicates. this is what windows do by default too
+     ________
+     windows recreate the path using three places at least:
+     the User namespace:    HKCU\Environment
+     the System namespace:  HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment
+     the Session namespace: HKCU\Volatile Environment
+     This script will merge all the three and remove any duplicates. this is 
+     what windows do by default too
 
-    # there is this too which cmd seems to read when first running, but it contains only TEMP and TMP,so this script will not use it
-    # HKEY_USERS\.DEFAULT\Environment
+     there is this too which cmd seems to read when first running, but it 
+     contains only TEMP and TMP,so this script will not use it
+     HKEY_USERS\.DEFAULT\Environment
 
-    # ________
-    # RefrEnv support the so called zsh Strict Mode like: "set -eEu -o pipefail ; shopt -s inherit_errexit" , you can use the Strict Mode safely in your parent script without worry.
+     ________
+     RefrEnv support the so called zsh Strict Mode like: 
+     "set -eEu -o pipefail ; shopt -s inherit_errexit" , you can use the Strict 
+     Mode safely in your parent script without worry.
 
 '
 }
@@ -98,7 +160,6 @@ DESCRIPTION
 refrenv_main(){
     local runme=yes
     local i=""
-
     
     if [[ ${RefrEnv_StrictRefresh:-} == yes ]] ; then
         local strict_txt=' - (Strict refresh)'
@@ -129,8 +190,11 @@ refrenv_main(){
     
     # unset all the functions we used in this script so we do not pollute the parent script
     # unset -f _common_functions echocolorsV3 INFOC WARNC ERRORC HIDEC INFO2C INFO3C INFO4C INFOCB WARNCB ERRORCB HIDECB INFO2CB INFO3CB INFO4CB ENDC ENDCln _trap_V5 error_handler 
-    unset -f RefrEnv_help refrenv_main getNewlyAddedVars _safe_vars getNewPATHS ExpandEnvironmentStrings
-         
+    unset -f RefrEnv_help refrenv_main getNewlyAddedVars getNewPATHS ExpandEnvironmentStrings
+    # zsh show this error when we call help : unset:34: no such hash table element: _safe_vars ; this is because _safe_vars was never set up when we call help because it s inside getNewlyAddedVars which zsh seems do not add it to the environment variable if we do not run getNewlyAddedVars
+    if [[ "${runme:-}" = "yes" ]] ; then
+        unset -f _safe_vars
+    fi
 }
 
 ####################################################################
@@ -160,10 +224,15 @@ getNewlyAddedVars(){
     #        score.  Also referred to as an identifier.
     # so we need to exclude anything that does not follow those rules, otherwise we get errors like in https://github.com/badrelmers/RefrEnv/issues/2 , because windows allow to set vars like "z.z" , "z-z" and "z z" which bash and zsh will not accept https://unix.stackexchange.com/questions/93532/exporting-a-variable-with-dot-in-it . a simple  grep -e '^[a-zA-Z_][a-zA-Z0-9_]*$' solve this
     
-    # TODO: add more zsh critical variables, for now I added only variables starting with zsh... and PROMPT PROMPT2 PROMPT3 PROMPT4 (PROMPT is very important to remove it otherwise the zsh prompt get changed, cmd and zsh use PROMPT so we should never overwrite PROMPT)
+    # i created the zsh builtin variables by combining the result of this two:
+    # https://zsh.sourceforge.io/Doc/Release/Variables-Index.html
+    # comm -23 <(typeset -m | cut -d= -f1 | sort) <(export | cut -d= -f1 | sort)
+
+    # TODO: remove the bash builtins vars if not needed here, the first list before the space is the windows list, the second list is the bash list , and the rest is the zsh list
     local regresult
     regresult=$(regtool list --list "${regPath}")
-    regresult=$(printf '%s' "${regresult}" | grep -e '^[a-zA-Z_][a-zA-Z0-9_]*$' | grep -i -v -e '^ALLUSERSPROFILE$' -e '^APPDATA$' -e '^CommonProgramFiles$' -e '^CommonProgramFiles(x86)$' -e '^CommonProgramW6432$' -e '^COMPUTERNAME$' -e '^ComSpec$' -e '^HOMEDRIVE$' -e '^HOMEPATH$' -e '^LOCALAPPDATA$' -e '^LOGONSERVER$' -e '^NUMBER_OF_PROCESSORS$' -e '^OS$' -e '^PATHEXT$' -e '^PROCESSOR_ARCHITECTURE$' -e '^PROCESSOR_ARCHITEW6432$' -e '^PROCESSOR_IDENTIFIER$' -e '^PROCESSOR_LEVEL$' -e '^PROCESSOR_REVISION$' -e '^ProgramData$' -e '^ProgramFiles$' -e '^ProgramFiles(x86)$' -e '^ProgramW6432$' -e '^PUBLIC$' -e '^SystemDrive$' -e '^SystemRoot$' -e '^TEMP$' -e '^TMP$' -e '^USERDOMAIN$' -e '^USERDOMAIN_ROAMINGPROFILE$' -e '^USERNAME$' -e '^USERPROFILE$' -e '^windir$' -e '^SESSIONNAME$'                     -e '^BASH$' -e '^BASHOPTS$' -e '^BASHPID$' -e '^BASH_ALIASES$' -e '^BASH_ARGC$' -e '^BASH_ARGV$' -e '^BASH_CMDS$' -e '^BASH_COMMAND$' -e '^BASH_COMPLETION_VERSINFO$' -e '^BASH_LINENO$' -e '^BASH_REMATCH$' -e '^BASH_SOURCE$' -e '^BASH_SUBSHELL$' -e '^BASH_VERSINFO$' -e '^BASH_VERSION$' -e '^COLUMNS$' -e '^COMP_WORDBREAKS$' -e '^CYGWIN$' -e '^CYG_SYS_BASHRC$' -e '^DIRSTACK$' -e '^EUID$' -e '^EXECIGNORE$' -e '^FUNCNAME$' -e '^GROUPS$' -e '^HISTCMD$' -e '^HISTCONTROL$' -e '^HISTFILE$' -e '^HISTFILESIZE$' -e '^HISTSIZE$' -e '^HISTTIMEFORMAT$' -e '^HOME$' -e '^HOSTNAME$' -e '^HOSTTYPE$' -e '^IFS$' -e '^INFOPATH$' -e '^LANG$' -e '^LC_ALL$' -e '^LC_COLLATE$' -e '^LC_CTYPE$' -e '^LC_MESSAGES$' -e '^LC_MONETARY$' -e '^LC_NUMERIC$' -e '^LC_TIME$' -e '^LINENO$' -e '^LINES$' -e '^MACHTYPE$' -e '^MAILCHECK$' -e '^OLDPWD$' -e '^OPTERR$' -e '^OPTIND$' -e '^ORIGINAL_PATH$' -e '^OSTYPE$' -e '^PATH$' -e '^PIPESTATUS$' -e '^POSIXLY_CORRECT$' -e '^PPID$' -e '^PRINTER$' -e '^PROFILEREAD$' -e '^PROMPT_COMMAND$' -e '^PS0$' -e '^PS1$' -e '^PS2$' -e '^PS3$' -e '^PS4$' -e '^PWD$' -e '^RANDOM$' -e '^SECONDS$' -e '^SHELL$' -e '^SHELLOPTS$' -e '^SHLVL$' -e '^SSH_ASKPASS$' -e '^TERM$' -e '^TERM_PROGRAM$' -e '^TERM_PROGRAM_VERSION$' -e '^TZ$' -e '^UID$' -e '^USER$' -e '^_backup_glob$'           -e '^CHILD_MAX$' -e '^BASH_COMPAT$' -e '^FUNCNEST$' -e '^COMP_TYPE$' -e '^COMP_KEY$' -e '^READLINE_LINE_BUFFER$' -e '^READLINE_POINT$' -e '^PROMPT_DIRTRIM$' -e '^BASH_EXECUTION_STRING$' -e '^COPROC_PID$' -e '^COPROC$' -e '^GLOBIGNORE$' -e '^HISTIGNORE$' -e '^SRANDOM$' -e '^READLINE_MARK$' -e '^EPOCHSECONDS$' -e '^EPOCHREALTIME$' -e '^BASH_ARGV0$' -e '^COMPREPLY$' -e '^COMP_CWORD$' -e '^COMP_LINE$' -e '^COMP_POINT$' -e '^COMP_WORDS$' -e '^EMACS$' -e '^FCEDIT$' -e '^FIGNORE$' -e '^HOSTFILE$' -e '^IGNOREEOF$' -e '^INPUTRC$' -e '^INSIDE_EMACS$' -e '^MAPFILE$' -e '^READLINE_LINE$' -e '^REPLY$' -e '^TIMEFORMAT$' -e '^TMOUT$' -e '^TMPDIR$' -e '^histchars$'                     -e '^PROMPT$' -e '^PROMPT2$' -e '^PROMPT3$' -e '^PROMPT4$' -e '^zsh_eval_context$' -e '^zsh_scheduled_events$' -e '^ZSH_ARGZERO$' -e '^ZSH_EVAL_CONTEXT$' -e '^ZSH_NAME$' -e '^ZSH_PATCHLEVEL$' -e '^ZSH_SUBSHELL$' -e '^ZSH_VERSION$') || true
+    regresult=$(printf '%s' "${regresult}" | grep -e '^[a-zA-Z_][a-zA-Z0-9_]*$' | grep -i -v -e '^ALLUSERSPROFILE$' -e '^APPDATA$' -e '^CommonProgramFiles$' -e '^CommonProgramFiles(x86)$' -e '^CommonProgramW6432$' -e '^COMPUTERNAME$' -e '^ComSpec$' -e '^HOMEDRIVE$' -e '^HOMEPATH$' -e '^LOCALAPPDATA$' -e '^LOGONSERVER$' -e '^NUMBER_OF_PROCESSORS$' -e '^OS$' -e '^PATHEXT$' -e '^PROCESSOR_ARCHITECTURE$' -e '^PROCESSOR_ARCHITEW6432$' -e '^PROCESSOR_IDENTIFIER$' -e '^PROCESSOR_LEVEL$' -e '^PROCESSOR_REVISION$' -e '^ProgramData$' -e '^ProgramFiles$' -e '^ProgramFiles(x86)$' -e '^ProgramW6432$' -e '^PUBLIC$' -e '^SystemDrive$' -e '^SystemRoot$' -e '^TEMP$' -e '^TMP$' -e '^USERDOMAIN$' -e '^USERDOMAIN_ROAMINGPROFILE$' -e '^USERNAME$' -e '^USERPROFILE$' -e '^windir$' -e '^SESSIONNAME$'                     -e '^BASH$' -e '^BASHOPTS$' -e '^BASHPID$' -e '^BASH_ALIASES$' -e '^BASH_ARGC$' -e '^BASH_ARGV$' -e '^BASH_CMDS$' -e '^BASH_COMMAND$' -e '^BASH_COMPLETION_VERSINFO$' -e '^BASH_LINENO$' -e '^BASH_REMATCH$' -e '^BASH_SOURCE$' -e '^BASH_SUBSHELL$' -e '^BASH_VERSINFO$' -e '^BASH_VERSION$' -e '^COLUMNS$' -e '^COMP_WORDBREAKS$' -e '^CYGWIN$' -e '^CYG_SYS_BASHRC$' -e '^DIRSTACK$' -e '^EUID$' -e '^EXECIGNORE$' -e '^FUNCNAME$' -e '^GROUPS$' -e '^HISTCMD$' -e '^HISTCONTROL$' -e '^HISTFILE$' -e '^HISTFILESIZE$' -e '^HISTSIZE$' -e '^HISTTIMEFORMAT$' -e '^HOME$' -e '^HOSTNAME$' -e '^HOSTTYPE$' -e '^IFS$' -e '^INFOPATH$' -e '^LANG$' -e '^LC_ALL$' -e '^LC_COLLATE$' -e '^LC_CTYPE$' -e '^LC_MESSAGES$' -e '^LC_MONETARY$' -e '^LC_NUMERIC$' -e '^LC_TIME$' -e '^LINENO$' -e '^LINES$' -e '^MACHTYPE$' -e '^MAILCHECK$' -e '^OLDPWD$' -e '^OPTERR$' -e '^OPTIND$' -e '^ORIGINAL_PATH$' -e '^OSTYPE$' -e '^PATH$' -e '^PIPESTATUS$' -e '^POSIXLY_CORRECT$' -e '^PPID$' -e '^PRINTER$' -e '^PROFILEREAD$' -e '^PROMPT_COMMAND$' -e '^PS0$' -e '^PS1$' -e '^PS2$' -e '^PS3$' -e '^PS4$' -e '^PWD$' -e '^RANDOM$' -e '^SECONDS$' -e '^SHELL$' -e '^SHELLOPTS$' -e '^SHLVL$' -e '^SSH_ASKPASS$' -e '^TERM$' -e '^TERM_PROGRAM$' -e '^TERM_PROGRAM_VERSION$' -e '^TZ$' -e '^UID$' -e '^USER$' -e '^_backup_glob$'           -e '^CHILD_MAX$' -e '^BASH_COMPAT$' -e '^FUNCNEST$' -e '^COMP_TYPE$' -e '^COMP_KEY$' -e '^READLINE_LINE_BUFFER$' -e '^READLINE_POINT$' -e '^PROMPT_DIRTRIM$' -e '^BASH_EXECUTION_STRING$' -e '^COPROC_PID$' -e '^COPROC$' -e '^GLOBIGNORE$' -e '^HISTIGNORE$' -e '^SRANDOM$' -e '^READLINE_MARK$' -e '^EPOCHSECONDS$' -e '^EPOCHREALTIME$' -e '^BASH_ARGV0$' -e '^COMPREPLY$' -e '^COMP_CWORD$' -e '^COMP_LINE$' -e '^COMP_POINT$' -e '^COMP_WORDS$' -e '^EMACS$' -e '^FCEDIT$' -e '^FIGNORE$' -e '^HOSTFILE$' -e '^IGNOREEOF$' -e '^INPUTRC$' -e '^INSIDE_EMACS$' -e '^MAPFILE$' -e '^READLINE_LINE$' -e '^REPLY$' -e '^TIMEFORMAT$' -e '^TMOUT$' -e '^TMPDIR$' -e '^histchars$'                     -e '^ARGC$' -e '^ARGV0$' -e '^BAUD$' -e '^BUFFER$' -e '^BUFFERLINES$' -e '^CDPATH$' -e '^COLUMNS$' -e '^CONTEXT$' -e '^CORRECT_IGNORE$' -e '^CORRECT_IGNORE_FILE$' -e '^CPUTYPE$' -e '^CURRENT$' -e '^CURSOR$' -e '^CUTBUFFER$' -e '^DIRSTACKSIZE$' -e '^EDITOR$' -e '^EGID$' -e '^ENV$' -e '^EPOCHREALTIME$' -e '^EPOCHSECONDS$' -e '^ERRNO$' -e '^EUID$' -e '^FCEDIT$' -e '^FIGNORE$' -e '^FPATH$' -e '^FUNCNEST$' -e '^GID$' -e '^HELPDIR$' -e '^HISTCHARS$' -e '^HISTCMD$' -e '^HISTCONTROL$' -e '^HISTFILE$' -e '^HISTNO$' -e '^HISTORY_IGNORE$' -e '^HISTSIZE$' -e '^HOME$' -e '^HOST$' -e '^IFS$' -e '^IPREFIX$' -e '^ISEARCHMATCH_ACTIVE$' -e '^ISEARCHMATCH_END$' -e '^ISEARCHMATCH_START$' -e '^ISUFFIX$' -e '^KEYBOARD_HACK$' -e '^KEYTIMEOUT$' -e '^LINENO$' -e '^LINES$' -e '^LISTMAX$' -e '^LOGCHECK$' -e '^MACHTYPE$' -e '^MAILCHECK$' -e '^MAILPATH$' -e '^MANPATH$' -e '^MODULE_PATH$' -e '^NULLCMD$' -e '^OPTARG$' -e '^OPTIND$' -e '^OSTYPE$' -e '^PATH$' -e '^PPID$' -e '^PROFILEREAD$' -e '^PROMPT2$' -e '^PROMPT3$' -e '^PROMPT4$' -e '^PS2$' -e '^PS3$' -e '^PS4$' -e '^PSVAR$' -e '^RANDOM$' -e '^READNULLCMD$' -e '^SAVEHIST$' -e '^SECONDS$' -e '^SHLVL$' -e '^SPROMPT$' -e '^TIMEFMT$' -e '^TMPPREFIX$' -e '^TRY_BLOCK_ERROR$' -e '^TRY_BLOCK_INTERRUPT$' -e '^TTY$' -e '^TTYIDLE$' -e '^UID$' -e '^USERNAME$' -e '^VENDOR$' -e '^WATCH$' -e '^WATCHFMT$' -e '^WORDCHARS$' -e '^ZLE_LINE_ABORTED$' -e '^ZSH_ARGZERO$' -e '^ZSH_EVAL_CONTEXT$' -e '^ZSH_NAME$' -e '^ZSH_PATCHLEVEL$' -e '^ZSH_SUBSHELL$' -e '^ZSH_VERSION$' -e '^aliases$' -e '^all_quotes$' -e '^argv$' -e '^bg$' -e '^bg_bold$' -e '^bg_no_bold$' -e '^bold_color$' -e '^builtins$' -e '^cdpath$' -e '^chpwd_functions$' -e '^color$' -e '^colour$' -e '^commands$' -e '^comppostfuncs$' -e '^compprefuncs$' -e '^compstate$' -e '^context$' -e '^dirstack$' -e '^dis_aliases$' -e '^dis_builtins$' -e '^dis_functions$' -e '^dis_functions_source$' -e '^dis_galiases$' -e '^dis_patchars$' -e '^dis_reswords$' -e '^dis_saliases$' -e '^epochtime$' -e '^errnos$' -e '^exact$' -e '^exact_string$' -e '^expl$' -e '^fg$' -e '^fg_bold$' -e '^fg_no_bold$' -e '^fignore$' -e '^fpath$' -e '^funcfiletrace$' -e '^funcsourcetrace$' -e '^funcstack$' -e '^functions$' -e '^functions_source$' -e '^functrace$' -e '^galiases$' -e '^histchars$' -e '^history$' -e '^historywords$' -e '^ignored$' -e '^incarg$' -e '^insert$' -e '^insert_positions$' -e '^jobdirs$' -e '^jobstates$' -e '^jobtexts$' -e '^keymaps$' -e '^mailpath$' -e '^manpath$' -e '^module_path$' -e '^modules$' -e '^nameddirs$' -e '^options$' -e '^parameters$' -e '^patchars$' -e '^path$' -e '^pipestatus$' -e '^prompt$' -e '^psvar$' -e '^reset_color$' -e '^reswords$' -e '^saliases$' -e '^signals$' -e '^status$' -e '^termcap$' -e '^terminfo$' -e '^userdirs$' -e '^usergroups$' -e '^watch$' -e '^widgets$' -e '^zle_bracketed_paste$' -e '^zsh_eval_context$' -e '^zsh_scheduled_events$') || true
+
 
     local regvar=""
     local i=""
@@ -187,7 +256,19 @@ getNewlyAddedVars(){
         # met2
         # The bash builtin compgen was meant to be used in completion scripts. To this end, compgen -v lists all defined variables. The downside: it lists only the variable names, not the values.
         # and compgen -v prints more things than set 
-        bashvar=$(compgen -v)
+        # bashvar=$(compgen -v)
+        
+        # there is no compgen in zsh
+        # some blackmagic by Chazelas https://unix.stackexchange.com/questions/292903/list-names-of-aliases-functions-and-variables-in-zsh
+        # we could have used only "set | cut -f1 -d = " or ${(k)parameters} or ${(k)parameters:#([[:alpha:]_][[:alnum:]_]#)} to get the same result,but those three examples will add those variables ! # $ * - 0 ? @ , and because we already filter any non standard variable above with grep -e '^[a-zA-Z_][a-zA-Z0-9_]*$' then those variables added by the three examples will not be overwrited anyway, but i will use the Chazelas method anyway because I may be wrong... 
+        # Stéphane Chazelas: ${(kM)parameters:#[[:alpha:]_][[:alnum:]_]#} (with extendedglob) for only the parameters that are variables. –  Jun 22, 2017
+        if [[ -o extendedglob ]]; then
+            bashvar=$(print -rl -- ${(kM)parameters:#[[:alpha:]_][[:alnum:]_]#} | sort)
+        else
+            setopt extendedglob
+            bashvar=$(print -rl -- ${(kM)parameters:#[[:alpha:]_][[:alnum:]_]#} | sort)
+            setopt noextendedglob
+        fi
 
                 
         # compare reg variables to bash variables and print only variables that exist in reg and do not exist in bash, this of course means that if a variable is already defined in bash and it is updates in reg,then this variable will not be updated using this script, this is not good of course but it is safer, because i may override a critical bash variable otherwise
@@ -206,21 +287,19 @@ getNewlyAddedVars(){
     fi
     
     # extract the values of the final key
-    # local ALLnewVarsKeysAndValues=""
-    ALLnewVarsKeysAndValues=""
     local newVarKeysAndValue0=""
     local newVarKeysAndValue==""
+    # local ALLnewVarsKeysAndValues=""
+    ALLnewVarsKeysAndValues=""
+    
     # don t quote $newVars i already override IFS so no worry about space, if i quote it the multiline is considered one word
     local i=""
     # for i in $newVars ; do 
     for i in ${(f)newVars} ; do 
         if [[ "$i" != "" ]] ; then
             # if the variable have ' bad things may happen so lets escape it with '\''
-            # local newVarKeysAndValue0
             newVarKeysAndValue0=$(regtool get "${regPath}/${i}" | sed "s/'/'\\\\''/g" )
             newVarKeysAndValue="export ${i}='${newVarKeysAndValue0}'"
-            
-            # local ALLnewVarsKeysAndValues+="${newVarKeysAndValue}"$'\n'
             ALLnewVarsKeysAndValues+="${newVarKeysAndValue}"$'\n'
         fi
     done
@@ -258,6 +337,7 @@ getNewPATHS(){
     HKCU=$(regtool get '/HKCU/Environment/path' 2>/dev/null) || true
     HKCUV=$(regtool get '/HKCU/Volatile Environment/path' 2>/dev/null) || true
 
+    # TODO: check here if we should do ${HKLM};${HKCU} or  ${HKCU};${HKLM} based on what the supported shells do, i think i should do ${HKCU};${HKLM}
     local allPATHs="${HKLM};${HKCU};${HKCUV}"
     
     # after installing chocolatey it adds itself to the path like that: (D:\ProgramData\chocolatey\bin;) , the last ; should not have been added by chocolatey, this is an error by chocolatey , and it cause allPATHs to have double ;; , and this will make cygpath print (cygpath: can't convert empty path) . to solve it lets replace the double ;; with one ; this is safe. this solve https://github.com/badrelmers/RefrEnv/issues/1
@@ -298,7 +378,8 @@ getNewPATHS(){
         # reset the path : read the text of the function how_to_open_a_clean_bash_session() for more details
         # lets open a new bash session then capture the new path then add that path to our path, otherwise the bash default path will also be reseted so no command will work after that
         # check if we are in a login shell
-        if shopt -q login_shell ; then
+        # if shopt -q login_shell ; then
+        if [[ -o login ]] ; then
             # we are in a login shell
             # env -i clears HOME, so even if you run bash -l on the inside, it won't read your .bash_profile etc .so to solve it we use HOME="$HOME" https://unix.stackexchange.com/questions/48994/how-to-run-a-program-in-a-clean-environment-in-bash/451389#451389
             # env -i adds a dot (.) to the path!, this is bad so lets remove that dot with sed
@@ -314,9 +395,9 @@ getNewPATHS(){
                 # -u, --unset=NAME   remove variable from the environment
             # it is good to unset ORIGINAL_PATH too otherwise ...etc\profile of msys2/git bash will use it to setup the new PATH and if it contain an old dir we do not want then it will be inherited in the new PATH
             # so with this solution we can pass all our actual environment to the new bash session and exclude the  PATH
-            DefaultPath=$(env -u PATH -u ORIGINAL_PATH PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$OSPATH_fromReg" "$BASH" -l -c 'printf "%s\n" "$PATH"' | sed -e 's/:\.:/:/' -e 's/:\.$//')
+            DefaultPath=$(env -u PATH -u ORIGINAL_PATH PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$OSPATH_fromReg" zsh -l -c 'printf "%s\n" "$PATH"' | sed -e 's/:\.:/:/' -e 's/:\.$//')
         else
-            DefaultPath=$(env -u PATH -u ORIGINAL_PATH PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$OSPATH_fromReg" "$BASH"    -c 'printf "%s\n" "$PATH"' | sed -e 's/:\.:/:/' -e 's/:\.$//')
+            DefaultPath=$(env -u PATH -u ORIGINAL_PATH PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$OSPATH_fromReg" zsh    -c 'printf "%s\n" "$PATH"' | sed -e 's/:\.:/:/' -e 's/:\.$//')
         fi
 
         # if Chazelas say something about the shell then take it with the eyes closed :) https://unix.stackexchange.com/questions/614299/how-to-split-a-string-by-character-in-bash-zsh
@@ -408,5 +489,157 @@ unset RefrEnv_Temp_Dir
 
 
 
+
+
+### some details######################################################################
+
+how_to_open_a_clean_bash_session(){
+    # test to show how to run a new bash session with a clean environment, well in fact i want a new bash session without some env var like PATH, but i want to keep important var needed by other apps like $HOME $USER $LC_ALL
+
+
+    PATH="00000000000000000000000000000:$PATH"
+
+    # _________________cygwin 
+    bash -c 'echo $PATH'      # baaaaaaaaad this do not reset the path
+    bash -lc 'echo $PATH'     # baaaaaaaaad this do not reset the path
+
+    # _________________git bash
+    bash -c 'echo $PATH'      # baaaaaaaaad this do not reset the path
+    bash -lc 'echo $PATH'     # goooooooooood this reset the path because it reads "D:\Program Files\Git\etc\profile" which reset the path
+
+
+    # so i need to use env -i to solve it for cygwin
+
+    # _________________git bash
+    # - baaaaaaaaad : 2 errors
+    env -i HOME=$HOME /bin/bash -lc 'echo $PATH'
+    # return 
+        # which: no bash in ((null))
+        # /d/Users/LLED2/.bash_profile: line 7: oh-my-posh: command not found
+        # /d/Users/LLED2/bin:/mingw64/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:.:/usr/bin/vendor_perl:/usr/bin/core_perl
+
+    # - this is usefull only if the parent script is not a login shell
+    env -i HOME=$HOME /bin/bash -c 'echo $PATH'
+        # return /usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:.
+
+    # - baaaaaaaaad this do not reset the path : 0000000...
+    env HOME=$HOME /bin/bash -c 'echo $PATH'
+        # return 00000000000000000000000000000:/d/Users/LLED2/bin:/mingw64/bin:/usr/local/bin:/usr/bin:/bin:/mingw64/bin:/usr/bin:/d/Users/LLED2/bin:/d/Windows/system32:/d/Windows:/d/Windows/System32/Wbem:/d/Windows/System32/WindowsPowerShell/v1.0:......:/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/bin:/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/themes:/usr/bin/vendor_perl:/usr/bin/core_perl
+
+    # - goooooooooood this reset the path
+    env HOME=$HOME /bin/bash -lc 'echo $PATH'
+        # return /d/Users/LLED2/bin:/mingw64/bin:/usr/local/bin:/usr/bin:/bin:/mingw64/bin:/usr/bin:/d/Users/LLED2/bin:/d/Windows/system32:/d/Windows:/d/Windows/System32/Wbem:/d/Windows/System32/WindowsPowerShell/v1.0:......:/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/bin:/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/themes:/usr/bin/vendor_perl:/usr/bin/core_perl
+
+    # _________________cygwin
+    # - baaaaaaaaad : 1 error
+    env -i HOME=$HOME /bin/bash -lc 'echo $PATH'
+    # return
+        # /home/LLED2/.bash_profile: line 63: oh-my-posh: command not found
+        # /usr/local/bin:/usr/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:.
+
+    # - this is usefull only if the parent script is not a login shell
+    env -i HOME=$HOME /bin/bash -c 'echo $PATH'
+        # return /usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:.
+
+    # - baaaaaaaaad this do not reset the path
+    env HOME=$HOME /bin/bash -c 'echo $PATH'
+        # return 00000000000000000000000000000:/cygdrive/F/_bin/_bin/git/_PortableGit/_last/cmd:/usr/local/bin:/usr/bin:/cygdrive/d/Windows/system32:/cygdrive/d/Windows:/cygdrive/d/Windows/System32/Wbem:/cygdrive/d/Windows/System32/WindowsPowerShell/v1.0:......:/cygdrive/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/bin:/cygdrive/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/themes:/usr/lib/lapack:/home/LLED2/.local/bin:/home/LLED2/_bin
+
+    # - baaaaaaaaad this do not reset the path
+    env HOME=$HOME /bin/bash -lc 'echo $PATH'
+        # return /cygdrive/F/_bin/_bin/git/_PortableGit/_last/cmd:00000000000000000000000000000:/cygdrive/F/_bin/_bin/git/_PortableGit/_last/cmd:/usr/local/bin:/usr/bin:/cygdrive/d/Windows/system32:/cygdrive/d/Windows:/cygdrive/d/Windows/System32/Wbem:/cygdrive/d/Windows/System32/WindowsPowerShell/v1.0:......:/cygdrive/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/bin:/cygdrive/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/themes:/usr/lib/lapack:/home/LLED2/.local/bin:/home/LLED2/_bin:/home/LLED2/.local/bin:/home/LLED2/_bin
+
+    ####################
+    # solution:
+    ####################
+    # if we r in non login bash then we use:
+    env -i HOME=$HOME /bin/bash -c 'echo $PATH'
+
+
+    # if we r in login bash then we use one of this:
+    # _________________solution1: the best
+    # we can use this: add default bash path manually ,it solves the error 'which: no bash in ((null))' which happen in git bash and msys2:
+    # this happen because "D:\Program Files\Git\etc\profile" use SHELL=`which bash`, and because the PATH is not exported then 'which' cannot read the PATH (if I use export inside ...etc\profile then 'which' work fine: the ((null)) simply means that the PATH is not setup). but why PATH is not exported automatically? I found a nice explination here https://unix.stackexchange.com/questions/50282/usr-bin-which-returns-cryptic-error-which-no-ls-in-null
+        # I had the same problem (using bash). It seems, a bash "feature" turns into a miss-feature: Bash creates a shell variable (not environment variable!) PATH which it then uses for lookups.
+        # So, the situation is: There exists a shell variable called PATH. But it's not an environment variable. This means, it's not exported to newly created child processes. One thing, we should learn from this, is that using echo $PATH is no way to figure out whether the environment variable PATH is set. Same prolem with set | grep "^PATH=" However, one way to do so is by using the external command env: env | grep "^PATH="
+        # ...
+        # Depending on what you're trying to achieve, you can ask the shell to act like a login shell, for bash it's -l. With that, /etc/profile and other files are sources which set up PATH properly by default:
+        # env -i bash -l
+        # The alternative, is to export PATH, see above.
+
+    # his solution to use bash -l will not work in our case here because the problem happen ...etc\profile before that ...etc\profile even export the PATH
+        # so to solve this we need to pass the PATH to env -i , because it seems that env will export the PATH for us, see this test:
+        env -i HOME=$HOME "$BASH" -c 'env | grep "^PATH="'
+            # return nothing
+        env -i HOME=$HOME PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin "$BASH" -c 'echo $PATH'
+            # return /usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
+
+    # so the solution is to use:
+        env -i HOME=$HOME PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin "$BASH" -lc 'echo $PATH'
+
+    # we solved the first error but we still have this error 'oh-my-posh: command not found', it happens in cygwin and git bash (because the path do not contain the OS path inhereited by the explorer, the PATH contain only cygwin/msys2 path):
+        # /d/Users/LLED2/.bash_profile: line 7: oh-my-posh: command not found
+
+    # to solve it we can do:
+    # met1: hide the error because it s not important to run correctly the bash_profile because we only want the path here, but if the bash_profile setup any path entry based on a the existence of a command then this will be a bad solution or even dangerous   
+        env -i HOME=$HOME PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin" bash -lc 'echo $PATH' 2>/dev/null || true
+
+    # met2: append the OS path we get from the reg : this is the safest method
+        env -i HOME=$HOME PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$OSPATH_fromReg" "$BASH" -lc 'echo $PATH'
+
+        
+    # met3: a better solution i found finally is to use env -u PATH instead of env -i... this is a life saver!
+        # -u, --unset=NAME   remove variable from the environment
+    # it is good to unset ORIGINAL_PATH too otherwise ...etc\profile of msys2/git bash will use it to setup the new PATH and if it contain an old dir we do not want then it will be inherited in the new PATH
+    # so with this solution we can pass all our actual environment to the new bash session and exclude the  PATH
+        OSPATH_fromReg=/d/Users/LLED2/AppData/Local/Programs/oh-my-posh/bin
+        env -u PATH -u ORIGINAL_PATH PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:$OSPATH_fromReg" "$BASH" -l -c 'printf "%s\n" "$PATH"'
+
+
+    # _________________solution2: I don t like this solution
+    # one solution that works too is to not use the -l with bash, but if the parent script who called refrenv used -l, then the path will not contain entries that are created when -l is used normally
+        env -i HOME=$HOME /bin/bash -c 'echo $PATH'
+
+    # _________________solution3: hackish
+    # this work to reset the env but i cannot capture the output
+    explorer "$(cygpath -w $(env bash))"
+
+    # but i can create a bat file then call "explorer file.bat" and run bash from it and capture the path , this will be best , but calling explorer is a litle bit hackish
+
+    # _________________solution4: TODO
+    # case "$(uname -s)" in
+       # CYGWIN*)  echo 'CYGWIN' ;;
+       # MINGW*)   echo 'MINGW' ;;
+       # MSYS*|)   echo 'MSYS' ;;
+       # *)        echo 'Other bash OS' ;;
+    # esac
+    # or 
+    # case "$OSTYPE" in
+      # msys*)    echo "MSYS / MinGW / Git Bash" ;;
+      # cygwin*)  echo "Cygwin" ;;
+      # *)        echo "unknown: $OSTYPE" ;;
+    # esac
+
+
+    # __________________________more details
+    # https://unix.stackexchange.com/questions/48994/how-to-run-a-program-in-a-clean-environment-in-bash
+    # env -i clears HOME, so even if you run bash -l on the inside, it won't read your .bash_profile etc. If what you're looking for is a shell that acts as if you had just done a fresh login, you'd want this instead:
+    # env -i HOME="$HOME" bash -l -c 'your_command'
+
+    # ________
+    # env -i somecommand runs a command in an empty environment, as ams has already mentioned.
+    # A lot of programs rely on some important environment variables, so you may want to retain them:
+    # env -i HOME="$HOME" LC_CTYPE="${LC_ALL:-${LC_CTYPE:-$LANG}}" PATH="$PATH" USER="$USER" somecommand
+
+    # ________
+    # You can get a fresh environment for the bash shell via env -i USER=user HOME=/home/user PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin bash -l. You really only need to set the USER, HOME, and PATH environment variables; plus LANGUAGE, LANG, and LC_ALL or other LC_ ones if you want some locale other than the default POSIX/C one; TERM (and -i option to bash) if interactive or use a terminal, and DISPLAY if using X11. But honestly, a PAM module is a much easier option. It's not nearly as hard to write the module as you might think. –  https://stackoverflow.com/questions/18094242/how-can-i-call-bash-from-c-with-a-clean-environment
+
+    # ________
+    # more reads:
+    # https://unix.stackexchange.com/questions/341999/can-bash-script-reset-sanitize-whole-environment-and-how
+    # https://unix.stackexchange.com/questions/446571/isolated-subshells-in-bash
+
+    
+}
 
 

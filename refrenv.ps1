@@ -247,11 +247,22 @@ None
   $psModulePath = $env:PSModulePath
 
   #ordering is important here, $user should override $machine...
+#  $ScopeList = 'Process', 'Machine'
+#  if ($userName -notin ('SYSTEM', "${env:COMPUTERNAME}`$")) {
+#     but only if not running as the SYSTEM/machine in which case user can be ignored.
+#    $ScopeList += 'User'
+#  }
+
+#powershell v2 which come preinstalled in win 7 do not have  -notin
+# the -notin operator is not available in the version of PowerShell running on Windows 7 system. The -notin operator was introduced in PowerShell 3.0
+#To work around this issue, you can use the -notcontains operator, which is available in earlier versions of PowerShell
   $ScopeList = 'Process', 'Machine'
-  if ($userName -notin 'SYSTEM', "${env:COMPUTERNAME}`$") {
+if (-not ($userName -contains 'SYSTEM' -or $userName -contains "${env:COMPUTERNAME}`$")) {
     # but only if not running as the SYSTEM/machine in which case user can be ignored.
     $ScopeList += 'User'
-  }
+}
+
+
   foreach ($Scope in $ScopeList) {
     Get-EnvironmentVariableNames -Scope $Scope |
         ForEach-Object {
@@ -281,5 +292,6 @@ None
 
 # Set-Alias refreshenv Update-SessionEnvironment
 
+echo 'RefrEnv - Refresh the Environment for powershell/pwsh'
 
 Update-SessionEnvironment
