@@ -97,9 +97,6 @@ DESCRIPTION
 ```
  
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/badrelmers/RefrEnv)](#)
-[![GitHub release (latest by date)](https://img.shields.io/github/downloads/badrelmers/RefrEnv/total)](#)
-[![GitHub release (latest by date)](https://img.shields.io/github/downloads/badrelmers/RefrEnv/latest/total)](#)
 
   [1]: https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
   [2]: https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
