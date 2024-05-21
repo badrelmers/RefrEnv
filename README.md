@@ -182,10 +182,8 @@ DESCRIPTION
 
 <br>
 <br>
-RefrEnv was created to respond to this [Stackoverflow thread][2]
-
+RefrEnv was created to respond to this Stackoverflow thread: https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
 
 
   [1]: https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
-  [2]: https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
 
