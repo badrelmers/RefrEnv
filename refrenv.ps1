@@ -230,23 +230,6 @@ None
 
 #  Write-FunctionCallLogMessage -Invocation $MyInvocation -Parameters $PSBoundParameters
 
-  # $refreshEnv = $false
-  # $invocation = $MyInvocation
-  # if ($invocation.InvocationName -eq 'refreshenv') {
-  #   $refreshEnv = $true
-  # }
-
-  # if ($refreshEnv) {
-  #   Write-Output 'Refreshing environment variables from the registry for powershell.exe. Please wait...'
-  # } else {
-  #   Write-Verbose 'Refreshing environment variables from the registry.'
-  # }
-
-  # $userName = $env:USERNAME
-  # $architecture = $env:PROCESSOR_ARCHITECTURE
-  # $psModulePath = $env:PSModulePath
-
-
   #ordering is important here, $user should override $machine...
   $ScopeList = 'Process', 'Machine'
   #powershell v2 which come preinstalled in win 7 do not have  -notin
@@ -282,8 +265,6 @@ None
     }
   }
 
-  # Get-ChildItem Env:
-
   
   if ($env:RefrEnv_ResetPath -eq 'yes') {
     $scopes = 'Machine', 'User'
@@ -303,13 +284,6 @@ None
   # TODO: should i exclude this? what happens when an app adds a path to PSModulePath in the hklm reg? so i think i should not prevent updating this
   # $env:PSModulePath = $psModulePath
 
-  # reset user and architecture
-  # if ($userName) { $env:USERNAME = $userName; }
-  # if ($architecture) { $env:PROCESSOR_ARCHITECTURE = $architecture; }
-
-  # if ($refreshEnv) {
-  #   Write-Output 'Finished'
-  # }
 }
 
 # Set-Alias refreshenv Update-SessionEnvironment
