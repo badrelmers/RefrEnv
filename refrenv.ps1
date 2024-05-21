@@ -1,7 +1,33 @@
 
-# description: refrenv = refresh environment. for powershell
+# author: Badr Elmers 2021-2024
+# version: 1.0
 # https://github.com/badrelmers/RefrEnv
-# usage: . .\refrenv.ps1
+
+<#
+.SYNOPSIS
+    RefrEnv - Refresh the Environment for Powershell/Pwsh
+
+.EXAMPLE
+    . .\refrenv.ps1
+    
+.DESCRIPTION
+    By default with no arguments, this script will do a full 
+    refresh (refresh all non critical variables*, and refresh the PATH).
+
+    you can use the following variables to change the default behaviour:
+                                
+    RefrEnv_ResetPath=yes       Reset the actual PATH inside Powershell, then refresh
+                                it with a new PATH. This will delete any PATH 
+                                added by the script who called RefrEnv. It is 
+                                equivalent to running a new Powershell session.
+
+you can also put this script in windows\systems32 or another place in your %PATH% then call it from an interactive console by writing refrenv.
+
+*critical variables: are variables which belong to Powershell/windows and should not be refreshed normally like:
+  - windows vars:
+    ALLUSERSPROFILE APPDATA CommonProgramFiles CommonProgramFiles(x86) CommonProgramW6432 COMPUTERNAME ComSpec HOMEDRIVE HOMEPATH LOCALAPPDATA LOGONSERVER NUMBER_OF_PROCESSORS OS PATHEXT PROCESSOR_ARCHITECTURE PROCESSOR_ARCHITEW6432 PROCESSOR_IDENTIFIER PROCESSOR_LEVEL PROCESSOR_REVISION ProgramData ProgramFiles ProgramFiles(x86) ProgramW6432 PUBLIC SystemDrive SystemRoot TEMP TMP USERDOMAIN USERDOMAIN_ROAMINGPROFILE USERNAME USERPROFILE windir SESSIONNAME
+
+#>
 
 # based on Chocolatey powershell refreshenv 
 ##################################################################
@@ -288,6 +314,6 @@ None
 
 # Set-Alias refreshenv Update-SessionEnvironment
 
-echo 'RefrEnv - Refresh the Environment for powershell/pwsh'
+echo 'RefrEnv - Refresh the Environment for Powershell/Pwsh'
 
 Update-SessionEnvironment
