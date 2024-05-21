@@ -3,23 +3,36 @@
 REM PUSHD "%~dp0"
 
 
-REM author: Badr Elmers 2021-2023
-REM description: refrenv = refresh environment. this is a better alternative to the chocolatey refreshenv for cmd
-REM version: 1.0
+REM author: Badr Elmers 2021-2024
+REM version: 1.1
 REM https://github.com/badrelmers/RefrEnv
-REM https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
+
 
 REM ___USAGE_____________________________________________________________
-REM usage: 
-REM        call refrenv.bat        full refresh. refresh all non critical variables*, and refresh the PATH
 
-REM debug:
-REM        to debug what this script do create this variable in your parent script like that
-REM        set debugme=yes
-REM        then the folder containing the files used to set the variables will be open. Then see
-REM        _NewEnv.cmd this is the file which run inside your script to setup the new variables, you
-REM        can also revise the intermediate files _NewEnv.cmd_temp_.cmd and _NewEnv.cmd_temp2_.cmd 
-REM        (those two contains all the variables before removing the duplicates and the unwanted variables)
+REM NAME
+REM    RefrEnv - Refresh the Environment for CMD
+REM
+REM SYNOPSIS
+REM    call refrenv.bat
+REM 
+REM DESCRIPTION
+REM    By default with no arguments, this script will do a full 
+REM    refresh (refresh all non critical variables*, and refresh the PATH).
+REM
+REM    you can use the following variables to change the default behaviour:
+REM
+REM    RefrEnv_ResetPath=yes       Reset the actual PATH inside CMD, then refresh
+REM                                it with a new PATH. This will delete any PATH 
+REM                                added by the script who called RefrEnv. It is 
+REM                                equivalent to running a new CMD session.
+REM
+REM    RefrEnv_debug=yes           Debug what this script do. The folder containing
+REM                                the files used to set the variables will be
+REM                                open, then see _NewEnv.sh, this is the file
+REM                                which run inside your script to setup the new
+REM                                variables, you can also revise the intermediate
+REM                                .txt files.
 
 
 REM you can also put this script in windows\systems32 or another place in your %PATH% then call it from an interactive console by writing refrenv
@@ -93,7 +106,7 @@ REM :: The only restriction is the VBS code cannot contain </script>.
 REM :: The only risk is the undocumented use of "%~f0?.wsf" as the script to load. Somehow the parser properly finds and loads the running .BAT script "%~f0", and the ?.wsf suffix mysteriously instructs CSCRIPT to interpret the script as WSF. Hopefully MicroSoft will never disable that "feature".
 REM :: https://stackoverflow.com/questions/9074476/is-it-possible-to-embed-and-execute-vbscript-within-a-batch-file-without-using-a
 
-if "%debugme%"=="yes" (
+if "%RefrEnv_debug%"=="yes" (
     echo RefrEnv - Refresh the Environment for CMD - ^(Debug enabled^)
 ) else (
     echo RefrEnv - Refresh the Environment for CMD
@@ -136,7 +149,7 @@ REM set z9
 REM but generally paths and environment variables should not have bad metacharacters, but it is not a rule!
 
 
-if "%debugme%"=="yes" (
+if "%RefrEnv_debug%"=="yes" (
     explorer "%TEMPDir%"
 ) else (
     rmdir /Q /S "%TEMPDir%"
@@ -146,7 +159,7 @@ REM cleanup
 set "TEMPDir="
 set "outputfile="
 set "DelayedExpansionState="
-set "debugme="
+set "RefrEnv_debug="
 
 
 REM pause
@@ -210,8 +223,13 @@ REM next
 REM here we add the actual session path, so we do not reset the original path, because maybe the parent script added some folders to the path, If we need to reset the path then comment the following line
 ProcessPath = oEnvP("PATH")
 
-REM merge System, User, Volatile, and process PATHs
-NewPath = SystemPath & ";" & UserPath & ";" & VolatilePath & ";" & ProcessPath
+REM merge System, User, Volatile, and possibly process PATHs
+If oEnvP("RefrEnv_ResetPath") = "yes" Then
+  NewPath = SystemPath & ";" & UserPath & ";" & VolatilePath
+Else
+  NewPath = SystemPath & ";" & UserPath & ";" & VolatilePath & ";" & ProcessPath
+End If
+
 
 
 REM ________________________________________________________________
