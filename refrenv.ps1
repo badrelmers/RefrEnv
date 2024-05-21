@@ -4,13 +4,13 @@
 # https://github.com/badrelmers/RefrEnv
 
 <#
-.SYNOPSIS
+NAME
     RefrEnv - Refresh the Environment for Powershell/Pwsh
 
-.EXAMPLE
+SYNOPSIS
     . .\refrenv.ps1
     
-.DESCRIPTION
+DESCRIPTION
     By default with no arguments, this script will do a full 
     refresh (refresh all non critical variables*, and refresh the PATH).
 
