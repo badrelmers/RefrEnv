@@ -1,2 +1,4 @@
 # TODO
-- add HKCU\Volatile Environment to powershell version
+- add "HKCU\Volatile Environment" to the powershell version
+- do i need to exclude some special powershell env like i did in bash?
+- add https://github.com/marketplace/actions/check-spelling
