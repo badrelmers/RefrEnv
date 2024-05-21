@@ -230,64 +230,86 @@ None
 
 #  Write-FunctionCallLogMessage -Invocation $MyInvocation -Parameters $PSBoundParameters
 
-  $refreshEnv = $false
-  $invocation = $MyInvocation
-  if ($invocation.InvocationName -eq 'refreshenv') {
-    $refreshEnv = $true
-  }
+  # $refreshEnv = $false
+  # $invocation = $MyInvocation
+  # if ($invocation.InvocationName -eq 'refreshenv') {
+  #   $refreshEnv = $true
+  # }
 
-  if ($refreshEnv) {
-    Write-Output 'Refreshing environment variables from the registry for powershell.exe. Please wait...'
-  } else {
-    Write-Verbose 'Refreshing environment variables from the registry.'
-  }
+  # if ($refreshEnv) {
+  #   Write-Output 'Refreshing environment variables from the registry for powershell.exe. Please wait...'
+  # } else {
+  #   Write-Verbose 'Refreshing environment variables from the registry.'
+  # }
 
-  $userName = $env:USERNAME
-  $architecture = $env:PROCESSOR_ARCHITECTURE
-  $psModulePath = $env:PSModulePath
+  # $userName = $env:USERNAME
+  # $architecture = $env:PROCESSOR_ARCHITECTURE
+  # $psModulePath = $env:PSModulePath
+
 
   #ordering is important here, $user should override $machine...
-#  $ScopeList = 'Process', 'Machine'
-#  if ($userName -notin ('SYSTEM', "${env:COMPUTERNAME}`$")) {
-#     but only if not running as the SYSTEM/machine in which case user can be ignored.
-#    $ScopeList += 'User'
-#  }
-
-#powershell v2 which come preinstalled in win 7 do not have  -notin
-# the -notin operator is not available in the version of PowerShell running on Windows 7 system. The -notin operator was introduced in PowerShell 3.0
-#To work around this issue, you can use the -notcontains operator, which is available in earlier versions of PowerShell
   $ScopeList = 'Process', 'Machine'
-if (-not ($userName -contains 'SYSTEM' -or $userName -contains "${env:COMPUTERNAME}`$")) {
+  #powershell v2 which come preinstalled in win 7 do not have  -notin
+  # the -notin operator is not available in the version of PowerShell running on Windows 7 system. The -notin operator was introduced in PowerShell 3.0
+  #To work around this issue, you can use the -notcontains operator, which is available in earlier versions of PowerShell
+  # TODO: i do not like this method at all, read the commit comment here for why they did it like that https://github.com/chocolatey/choco/commit/c408d1299b6f5f7e3e285d17f9e2d1719dfac122   should we really exclude User vars if we are using SYSTEM user? i aleady solved there fear about TMP by using excludedVariables so why do i need to exclude User var here? i probably do not need this check anymore but need to test it
+  # if ($userName -notin ('SYSTEM', "${env:COMPUTERNAME}`$")) {
+  # if ('SYSTEM', "${env:COMPUTERNAME}`$" -notcontains $userName) {
+  if (-not ($userName -contains 'SYSTEM' -or $userName -contains "${env:COMPUTERNAME}`$")) {
     # but only if not running as the SYSTEM/machine in which case user can be ignored.
     $ScopeList += 'User'
-}
+  }
 
+  # Define a list of environment variables to exclude, this is the same list i m using in cmd
+  # TODO: do i need to exclude some special powershell env like i did in bash?
+  $excludedVariables = @(
+    'Path',   'ALLUSERSPROFILE', 'APPDATA', 'CommonProgramFiles', 'CommonProgramFiles(x86)', 
+    'CommonProgramW6432', 'COMPUTERNAME', 'ComSpec', 'HOMEDRIVE', 'HOMEPATH', 
+    'LOCALAPPDATA', 'LOGONSERVER', 'NUMBER_OF_PROCESSORS', 'OS', 'PATHEXT', 
+    'PROCESSOR_ARCHITECTURE', 'PROCESSOR_ARCHITEW6432', 'PROCESSOR_IDENTIFIER', 
+    'PROCESSOR_LEVEL', 'PROCESSOR_REVISION', 'ProgramData', 'ProgramFiles', 
+    'ProgramFiles(x86)', 'ProgramW6432', 'PUBLIC', 'SystemDrive', 'SystemRoot', 
+    'TEMP', 'TMP', 'USERDOMAIN', 'USERDOMAIN_ROAMINGPROFILE', 'USERNAME', 
+    'USERPROFILE', 'windir', 'SESSIONNAME'
+  )
 
   foreach ($Scope in $ScopeList) {
-    Get-EnvironmentVariableNames -Scope $Scope |
-        ForEach-Object {
-          Set-Item "Env:$_" -Value (Get-EnvironmentVariable -Scope $Scope -Name $_)
-        }
+    Get-EnvironmentVariableNames -Scope $Scope | ForEach-Object {
+      # Skip setting the PATH and the dangerous environment variables (case-insensitive comparison)
+      if ($excludedVariables -inotcontains $_) {
+        Set-Item "Env:$_" -Value (Get-EnvironmentVariable -Scope $Scope -Name $_)
+      }
+    }
+  }
+
+  # Get-ChildItem Env:
+
+  
+  if ($env:RefrEnv_ResetPath -eq 'yes') {
+    $scopes = 'Machine', 'User'
+  } else {
+    $scopes = 'Process', 'Machine', 'User'
   }
 
   #Path gets special treatment b/c it munges the two together
-  $paths = 'Machine', 'User' |
+  $paths = $scopes |
     ForEach-Object {
       (Get-EnvironmentVariable -Name 'PATH' -Scope $_) -split ';'
     } |
     Select-Object -Unique
   $Env:PATH = $paths -join ';'
-
+ 
   # PSModulePath is almost always updated by process, so we want to preserve it.
-  $env:PSModulePath = $psModulePath
+  # TODO: should i exclude this? what happens when an app adds a path to PSModulePath in the hklm reg? so i think i should not prevent updating this
+  # $env:PSModulePath = $psModulePath
 
   # reset user and architecture
-  if ($userName) { $env:USERNAME = $userName; }
-  if ($architecture) { $env:PROCESSOR_ARCHITECTURE = $architecture; }
+  # if ($userName) { $env:USERNAME = $userName; }
+  # if ($architecture) { $env:PROCESSOR_ARCHITECTURE = $architecture; }
 
-  if ($refreshEnv) {
-    Write-Output 'Finished'
-  }
+  # if ($refreshEnv) {
+  #   Write-Output 'Finished'
+  # }
 }
 
 # Set-Alias refreshenv Update-SessionEnvironment
