@@ -1,10 +1,8 @@
 #!/bin/bash
 
-# author: Badr Elmers 2021-2023
-# description: RefrEnv = refresh environment. for bash of Cygwin/Msys2/GitBash
+# author: Badr Elmers 2021-2024
 # version: 1.3
 # https://github.com/badrelmers/RefrEnv
-# https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
 
 ###########################################################################################
 
@@ -27,7 +25,7 @@ DESCRIPTION
     By default with no arguments, this script will do a full 
     refresh (refresh all non critical variables*, and refresh the PATH).
 
-    you can use the following variables to change some behaviours:
+    you can use the following variables to change the default behaviour:
     
     RefrEnv_StrictRefresh=yes   Strict mode (secure refresh). this prevent 
                                 refreshing a variable if it is already defined  
