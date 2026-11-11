@@ -17,9 +17,16 @@ DESCRIPTION
     you can use the following variables to change the default behaviour:
                                 
     RefrEnv_ResetPath=yes       Reset the actual PATH inside Powershell, then refresh
-                                it with a new PATH. This will delete any PATH 
-                                added by the script who called RefrEnv. It is 
+                                it with a new PATH. This will delete any PATH
+                                added by the script who called RefrEnv. It is
                                 equivalent to running a new Powershell session.
+
+    PSModulePath                gets special treatment: the actual process value
+                                is kept, and any PSModulePath entries found in
+                                the registry (machine/user) which are missing
+                                from it are appended. This is needed because
+                                Powershell adds its own default module paths
+                                at startup which do not exist in the registry.
 
 you can also put this script in windows\systems32 or another place in your %PATH% then call it from an interactive console by writing refrenv.
 
@@ -270,9 +277,11 @@ None
   }
 
   # Define a list of environment variables to exclude, this is the same list i m using in cmd
+  # PSModulePath is excluded here and gets merged below instead of being overwritten,
+  # because Powershell adds its own default module paths at startup which do not exist in the registry
   # TODO: do i need to exclude some special powershell env like i did in bash?
   $excludedVariables = @(
-    'Path',   'ALLUSERSPROFILE', 'APPDATA', 'CommonProgramFiles', 'CommonProgramFiles(x86)', 
+    'Path',   'PSModulePath',   'ALLUSERSPROFILE', 'APPDATA', 'CommonProgramFiles', 'CommonProgramFiles(x86)',
     'CommonProgramW6432', 'COMPUTERNAME', 'ComSpec', 'HOMEDRIVE', 'HOMEPATH', 
     'LOCALAPPDATA', 'LOGONSERVER', 'NUMBER_OF_PROCESSORS', 'OS', 'PATHEXT', 
     'PROCESSOR_ARCHITECTURE', 'PROCESSOR_ARCHITEW6432', 'PROCESSOR_IDENTIFIER', 
@@ -306,9 +315,19 @@ None
     Select-Object -Unique
   $Env:PATH = $paths -join ';'
  
-  # PSModulePath is almost always updated by process, so we want to preserve it.
-  # TODO: should i exclude this? what happens when an app adds a path to PSModulePath in the hklm reg? so i think i should not prevent updating this
-  # $env:PSModulePath = $psModulePath
+  # PSModulePath gets special treatment like Path. PowerShell builds the
+  # process value at startup by appending its default module paths (which are
+  # not stored in the registry) to the inherited value, so overwriting it with
+  # the registry value loses them and breaks module autoloading.
+  # https://github.com/badrelmers/RefrEnv/issues/9
+  # So instead of overwriting, we keep the process value and append any
+  # registry (Machine then User) entries that are not already in it, so
+  # module paths newly added by an app still propagate.
+  $psModulePaths = $env:PSModulePath -split ';'
+  $registryModulePaths = 'Machine', 'User' |
+    ForEach-Object { (Get-EnvironmentVariable -Name 'PSModulePath' -Scope $_) -split ';' } |
+    Where-Object { $_ -and $psModulePaths -notcontains $_ }
+  $Env:PSModulePath = ($psModulePaths + $registryModulePaths) -join ';'
 
 }
 
