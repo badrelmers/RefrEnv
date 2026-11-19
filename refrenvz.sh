@@ -1,8 +1,8 @@
 #!/bin/zsh
 
-# author: Badr Elmers 2021-2023
+# author: Badr Elmers 2021-2026
 # description: RefrEnv = refresh environment. for ZSH of Cygwin/Msys2/GitBash
-# version: 1.0
+# version: 1.4
 # https://github.com/badrelmers/RefrEnv
 # https://stackoverflow.com/questions/171588/is-there-a-command-to-refresh-environment-variables-from-the-command-prompt-in-w
 

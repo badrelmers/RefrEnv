@@ -1,6 +1,6 @@
 
-# author: Badr Elmers 2021-2024
-# version: 1.1
+# author: Badr Elmers 2021-2026
+# version: 1.4
 # https://github.com/badrelmers/RefrEnv
 
 <#

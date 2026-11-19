@@ -3,8 +3,8 @@
 REM PUSHD "%~dp0"
 
 
-REM author: Badr Elmers 2021-2024
-REM version: 1.1
+REM author: Badr Elmers 2021-2026
+REM version: 1.4
 REM https://github.com/badrelmers/RefrEnv
 
 
